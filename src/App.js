@@ -63,7 +63,7 @@ const TextToJsonConverter = () => {
     
     return (
         <div>
-            <div className='flex flex-col w-2/3 justify-center items-center m-auto mt-[100px] gap-4'>
+            {/* <div className='flex flex-col w-2/3 justify-center items-center m-auto mt-[100px] gap-4'>
                 <h1 className='text-["orangered"] text-4xl font-bold'>Generate Bo Form</h1>
                 <textarea
                     rows="20"
@@ -75,7 +75,7 @@ const TextToJsonConverter = () => {
                 />
                 <br />
                 <button onClick={convertToJson} className='border rounded-sm p-2'>Convert to PDF</button>
-            </div>
+            </div> */}
             <MyEditor />
         </div>
     );

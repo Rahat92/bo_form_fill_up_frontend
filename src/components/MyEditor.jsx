@@ -63,6 +63,7 @@ const MyEditor = () => {
     const convertToJson = async () => {
         
         const result = extractDataFromHTML(inputText)
+        console.log(result)
         const date =  formatDate(result['জন্ম তারিখ']) || formatDate(result['Date of Birth'])
         const response = await fetch('http://localhost:3001/modify-pdf', {
             method: 'POST',
@@ -85,6 +86,9 @@ const MyEditor = () => {
                     clientNationality: result["জাতীয়তা"] || result["Nationality"],
                     clientNid: result["জাতীয় আইডি নাম্বার"] || result["National ID Number"],
                     clientOccupation: result["পেশা"] || result["Occupation"],
+                    clientNominyPhoto: result["নমিনির পাসপোর্ট সাইজ ছবিটি আপলোড করুন"] || result["Upload Passport Sized Photo of Nominee"],
+                    clientPhoto: result["একক আবেদনকারীর পাসপোর্ট আকারের ছবি আপলোড করুন"] || result["Upload Passport Sized Photograph of Single Applicant"],
+                    clientSignature: result["একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)"] || result["Upload Signature of Single Applicant (signature must match your NID card)"],
                 }
             )
         })
@@ -92,7 +96,6 @@ const MyEditor = () => {
         const url = window.URL.createObjectURL(blob);
         window.open(url, "_blank"); // Open the PDF URL in a new tab or window
     };
-    console.log(jsonResult)
 
     // useEffect(() => {
 
