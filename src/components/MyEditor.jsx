@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion'
 import { Editor } from '@tinymce/tinymce-react';
 import moment from 'moment'
-
+import logo from './../../src/assets/images/midway-logo-moto.png'
 const MyEditor = () => {
     const [inputText, setInputText] = useState('');
+    const [windowWidth, setWindowWidth] = useState()
+    const [isSubmitButtonClicked, setIsSubmitButtonClicked] = useState()
+    const [clientId, setClientId] = useState()
+    useEffect(() => {
+        setWindowWidth(window.innerWidth)
+        window.addEventListener('resize', () => {
+            setWindowWidth(window.innerWidth)
+        })
+    }, [window.innerWidth])
 
     const handleEditorChange = (content) => {
         setInputText(content)
     };
 
-    console.log(inputText)
+    console.log(windowWidth)
     function formatDate(dateStr) {
         let date = moment(dateStr, ['DD/MM/YYYY', 'DD-MMM-YYYY']);
 
@@ -25,9 +35,9 @@ const MyEditor = () => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, 'text/html');
         const data = {};
-
+        console.log(doc)
         const strongTags = doc.querySelectorAll('p strong');
-
+        console.log(strongTags)
         strongTags.forEach((strongTag) => {
             const fieldName = strongTag.textContent.trim();
             let fieldValue = '';
@@ -54,19 +64,19 @@ const MyEditor = () => {
     }
 
     const convertToJson = async () => {
-        
         const result = extractDataFromHTML(inputText)
-        console.log(result)
-        const date =  formatDate(result['জন্ম তারিখ']) || formatDate(result['Date of Birth'])
-        const response = await fetch('http://localhost:3001/modify-pdf', {
+        console.log('haha',Object.keys(result))
+        const date = formatDate(result['জন্ম তারিখ']) || formatDate(result['Date of Birth'])
+        const response = await fetch('http://157.142.6.2:3001/modify-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
                 {
+                    clientId:clientId,
                     clientName: result['একক আবেদনকারী নাম'] || result["Single Applicant Name"] || result["1st Applicant Name"],
-                    clientGender: result['লিঙ্গ'] || result['Gender'] ,
+                    clientGender: result['লিঙ্গ'] || result['Gender'],
                     clientEmail: result['ইমেইল'] || result["Email"],
-                    clientDateOfBirth:  date,
+                    clientDateOfBirth: date,
                     clientGuardian: result['পিতার / স্বামী / সিইও এর নাম'] || result["Father's/Husband's/CEO's Name"],
                     clientMother: result['মায়ের নাম'] || result["Mother's Name"],
                     boType: result['একক আবেদনকারী নাম'] || result["Single Applicant Name"] ? 'single' : 'joint',
@@ -81,35 +91,62 @@ const MyEditor = () => {
                     clientNominyPhoto: result["নমিনির পাসপোর্ট সাইজ ছবিটি আপলোড করুন"] || result["Upload Passport Sized Photo of Nominee"],
                     clientPhoto: result["একক আবেদনকারীর পাসপোর্ট আকারের ছবি আপলোড করুন"] || result["Upload Passport Sized Photograph of Single Applicant"],
                     clientSignature: result["একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)"] || result["Upload Signature of Single Applicant (signature must match your NID card)"],
+                    clientNidPhoto: result["একক আবেদনকারীর জন্য জাতীয় আইডি এর ফটোকপি আপলোড করুন"] || result["Upload Photocopy of National ID for Single Applicant"],
                     jointApplicantName: result["Joint Applicant Name"],
                     jointApplicantPhoto: result["Upload Passport Sized Photograph of Joint Applicant"],
                     clientBankName: result["আপনার ব্যাংকের নাম"] || result["Name of your Bank"],
+                    clientBankDepositeScreenShot: result["আপলোড ব্যাংক/বিকাশ/নগদ ডিপোজিট স্লিপ/স্ক্রিনশট"] || result["Upload Bank or (bKash/Rocket/Nagad) Deposit Slip/Screenshot"],
+                    clientDivision: result["বিভাগ"] || result["State/Division"],
+                    jointApplicantSign: result["Upload Signature of Joint Applicant (signature must match your NID card)"],
+                    fields: result
                 }
             )
         })
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        window.open(url, "_blank"); 
+        window.open(url, "_blank");
     };
 
-
-
+    useEffect(() => {
+        if(isSubmitButtonClicked) {
+            const clientId = prompt('Add client Id.')
+            setClientId(clientId)
+        }
+        return () => setIsSubmitButtonClicked(false)
+    }, [isSubmitButtonClicked])
+    useEffect(() => {
+        if(clientId) {
+            convertToJson()
+        }
+    }, [clientId])
     return (
         <div className='flex justify-center flex-col items-center mt-8 gap-8'>
-            <Editor
-                apiKey="t07rqm8g7iq1q374jkgsazk2vgbmxdowxpa25njpkiwbwj1b"
-                init={{
-                    height: 500,
-                    width: 600,
-                    menubar: false,
-                    plugins: ['link'],
-                    toolbar: 'undo redo | formatselect | bold italic | link | underline',
-                }}
-                onEditorChange={handleEditorChange}
-                
-            />
-            <button onClick={convertToJson} className='border rounded-sm p-2'>Convert to PDF</button>
-            {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
+            <div className='flex flex-col items-center gap-2 h-[15vh]'>
+                <img src={logo} width="100px" />
+                <h1 className='text-3xl font-semibold'>BO form fill up</h1>
+            </div>
+            <motion.div className=''>
+                <div className='flex flex-col items-center gap-4 h-[85]'>
+                    <Editor
+                        className=""
+                        apiKey="t07rqm8g7iq1q374jkgsazk2vgbmxdowxpa25njpkiwbwj1b"
+                        init={{
+                            height: windowWidth <= 1600 ? 400 : 600,
+                            width: 500,
+                            menubar: false,
+                            plugins: ['link'],
+                            toolbar: 'undo redo | formatselect | bold italic | link | underline',
+                        }}
+                        onEditorChange={handleEditorChange}
+
+                    />
+                    <div className='flex justify-center w-full items-center'>
+                        {/* <button type='submit' onClick={convertToJson} className='border rounded-sm p-2'>Fill BO form</button> */}
+                        <button type='submit' onClick={() => setIsSubmitButtonClicked(true)} className='border rounded-sm p-2'>Fill BO form</button>
+                    </div>
+                </div>
+                {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
+            </motion.div>
         </div>
     );
 };
