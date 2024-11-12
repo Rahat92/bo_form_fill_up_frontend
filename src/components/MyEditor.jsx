@@ -133,7 +133,7 @@ const MyEditor = () => {
             <div className={`${loading?'hidden':'flex'} justify-center flex-col items-center mt-8 gap-8`}>
 
                 <div className='flex flex-col items-center gap-2 h-[15vh]'>
-                    <img src={logo} width="100px" />
+                    <img src={logo} width="60px" />
                     <h1 className='text-3xl font-semibold'>BO form fill up</h1>
                 </div>
                 <motion.div className=''>
@@ -142,7 +142,7 @@ const MyEditor = () => {
                             className=""
                             apiKey="t07rqm8g7iq1q374jkgsazk2vgbmxdowxpa25njpkiwbwj1b"
                             init={{
-                                height: windowWidth <= 1600 ? 400 : 600,
+                                height: windowWidth <= 1600?400:400,
                                 width: 500,
                                 menubar: false,
                                 plugins: ['link'],
