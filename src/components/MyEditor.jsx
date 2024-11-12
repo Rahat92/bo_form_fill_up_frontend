@@ -70,7 +70,7 @@ const MyEditor = () => {
         console.log('haha', Object.keys(result))
         const date = formatDate(result['জন্ম তারিখ']) || formatDate(result['Date of Birth'])
         setLoading(true)
-        const response = await fetch('http://157.142.6.2:3001/modify-pdf', {
+        const response = await fetch(`http://${process.env.REACT_APP_IP}:3001/modify-pdf`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
