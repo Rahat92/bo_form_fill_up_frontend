@@ -67,7 +67,6 @@ const MyEditor = () => {
 
     const convertToJson = async () => {
         const result = extractDataFromHTML(inputText)
-        console.log('haha', Object.keys(result))
         const date = formatDate(result['জন্ম তারিখ']) || formatDate(result['Date of Birth'])
         setLoading(true)
         const response = await fetch(`http://${process.env.REACT_APP_IP}:3001/modify-pdf`, {
@@ -97,8 +96,13 @@ const MyEditor = () => {
                     clientNidPhoto: result["একক আবেদনকারীর জন্য জাতীয় আইডি এর ফটোকপি আপলোড করুন"] || result["Upload Photocopy of National ID for Single Applicant"],
                     jointApplicantName: result["Joint Applicant Name"],
                     jointApplicantPhoto: result["Upload Passport Sized Photograph of Joint Applicant"],
+
                     clientBankName: result["আপনার ব্যাংকের নাম"] || result["Name of your Bank"],
                     clientBankDepositeScreenShot: result["আপলোড ব্যাংক/বিকাশ/নগদ ডিপোজিট স্লিপ/স্ক্রিনশট"] || result["Upload Bank or (bKash/Rocket/Nagad) Deposit Slip/Screenshot"],
+                    clientBankAccountNumber: result["ব্যাংক একাউন্ট নাম্বার"] || result["Bank Account Number"],
+                    clientBankRoutingNumber: result["ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)"] || result["Routing Number (Optional)"],
+
+
                     clientDivision: result["বিভাগ"] || result["State/Division"],
                     jointApplicantSign: result["Upload Signature of Joint Applicant (signature must match your NID card)"],
                     fields: result
@@ -128,7 +132,7 @@ const MyEditor = () => {
     return (
         <>
             {loading && (
-                <div className='fixed top-0 bottom-0 left-0 right-0 z-100 flex justify-center items-center text-2xl'>Generating Folder, Please wait</div>
+                <div className='fixed top-0 bottom-0 left-0 right-0 z-100 flex justify-center items-center text-2xl'>Generating Folder, Please wait...</div>
             )}
             <div className={`${loading?'hidden':'flex'} justify-center flex-col items-center mt-8 gap-8`}>
 

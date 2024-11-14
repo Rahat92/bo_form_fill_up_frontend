@@ -1,0 +1,1 @@
+pm2 serve  build --name bo_client 8080 --spa
