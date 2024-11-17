@@ -37,9 +37,7 @@ const MyEditor = () => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, 'text/html');
         const data = {};
-        console.log(doc)
         const strongTags = doc.querySelectorAll('p strong');
-        console.log(strongTags)
         strongTags.forEach((strongTag) => {
             const fieldName = strongTag.textContent.trim();
             let fieldValue = '';
@@ -70,41 +68,46 @@ const MyEditor = () => {
         console.log('haha', Object.keys(result))
         const date = formatDate(result['জন্ম তারিখ']) || formatDate(result['Date of Birth'])
         setLoading(true)
-        const response = await fetch(`http://${process.env.REACT_APP_IP}:3001/modify-pdf`, {
+        const response = await fetch(`http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(
-                {
-                    clientId: clientId,
-                    clientName: result['একক আবেদনকারী নাম'] || result["Single Applicant Name"] || result["1st Applicant Name"],
-                    clientGender: result['লিঙ্গ'] || result['Gender'],
-                    clientEmail: result['ইমেইল'] || result["Email"],
-                    clientDateOfBirth: date,
-                    clientGuardian: result['পিতার / স্বামী / সিইও এর নাম'] || result["Father's/Husband's/CEO's Name"],
-                    clientMother: result['মায়ের নাম'] || result["Mother's Name"],
-                    boType: result['একক আবেদনকারী নাম'] || result["Single Applicant Name"] ? 'single' : 'joint',
-                    clientAddress: result["ঠিকানা"] || result["Address"],
-                    clientPostalCode: result["পোস্টাল কোড"] || result["Postal Code"],
-                    clientCity: result["শহর"] || result["City"],
-                    clientCountry: result["দেশ"] || result["Country"],
-                    clientMobileNumber: result["মোবাইল নাম্বার"] || result["Mobile Number"],
-                    clientNationality: result["জাতীয়তা"] || result["Nationality"],
-                    clientNid: result["জাতীয় আইডি নাম্বার"] || result["National ID Number"],
-                    clientOccupation: result["পেশা"] || result["Occupation"],
-                    clientNominyPhoto: result["নমিনির পাসপোর্ট সাইজ ছবিটি আপলোড করুন"] || result["Upload Passport Sized Photo of Nominee"],
-                    clientPhoto: result["একক আবেদনকারীর পাসপোর্ট আকারের ছবি আপলোড করুন"] || result["Upload Passport Sized Photograph of Single Applicant"],
-                    clientSignature: result["একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)"] || result["Upload Signature of Single Applicant (signature must match your NID card)"],
-                    clientNidPhoto: result["একক আবেদনকারীর জন্য জাতীয় আইডি এর ফটোকপি আপলোড করুন"] || result["Upload Photocopy of National ID for Single Applicant"],
-                    jointApplicantName: result["Joint Applicant Name"],
-                    jointApplicantPhoto: result["Upload Passport Sized Photograph of Joint Applicant"],
-                    clientBankName: result["আপনার ব্যাংকের নাম"] || result["Name of your Bank"],
-                    clientBankDepositeScreenShot: result["আপলোড ব্যাংক/বিকাশ/নগদ ডিপোজিট স্লিপ/স্ক্রিনশট"] || result["Upload Bank or (bKash/Rocket/Nagad) Deposit Slip/Screenshot"],
-                    clientDivision: result["বিভাগ"] || result["State/Division"],
-                    jointApplicantSign: result["Upload Signature of Joint Applicant (signature must match your NID card)"],
-                    fields: result
-                }
-            )
-        })
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-store',   // Ensure no caching for the request and response
+              'Pragma': 'no-cache',          // Older header support
+              'Expires': '0'                 // Expired immediately
+            },
+            body: JSON.stringify({
+              clientId: clientId,
+              uniqueRequestId: Date.now() + Math.random(), 
+              clientName: result['একক আবেদনকারী নাম'] || result["Single Applicant Name"] || result["1st Applicant Name"],
+              clientGender: result['লিঙ্গ'] || result['Gender'],
+              clientEmail: result['ইমেইল'] || result["Email"],
+              clientDateOfBirth: date,
+              clientGuardian: result['পিতার / স্বামী / সিইও এর নাম'] || result["Father's/Husband's/CEO's Name"],
+              clientMother: result['মায়ের নাম'] || result["Mother's Name"],
+              boType: result['একক আবেদনকারী নাম'] || result["Single Applicant Name"] ? 'single' : 'joint',
+              clientAddress: result["ঠিকানা"] || result["Address"],
+              clientPostalCode: result["পোস্টাল কোড"] || result["Postal Code"],
+              clientCity: result["শহর"] || result["City"],
+              clientCountry: result["দেশ"] || result["Country"],
+              clientMobileNumber: result["মোবাইল নাম্বার"] || result["Mobile Number"],
+              clientNationality: result["জাতীয়তা"] || result["Nationality"],
+              clientNid: result["জাতীয় আইডি নাম্বার"] || result["National ID Number"],
+              clientOccupation: result["পেশা"] || result["Occupation"],
+              clientNominyPhoto: result["নমিনির পাসপোর্ট সাইজ ছবিটি আপলোড করুন"] || result["Upload Passport Sized Photo of Nominee"],
+              clientPhoto: result["একক আবেদনকারীর পাসপোর্ট আকারের ছবি আপলোড করুন"] || result["Upload Passport Sized Photograph of Single Applicant"],
+              clientSignature: result["একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)"] || result["Upload Signature of Single Applicant (signature must match your NID card)"],
+              clientNidPhoto: result["একক আবেদনকারীর জন্য জাতীয় আইডি এর ফটোকপি আপলোড করুন"] || result["Upload Photocopy of National ID for Single Applicant"],
+              jointApplicantName: result["Joint Applicant Name"],
+              jointApplicantPhoto: result["Upload Passport Sized Photograph of Joint Applicant"],
+              clientBankName: result["আপনার ব্যাংকের নাম"] || result["Name of your Bank"],
+              clientBankDepositeScreenShot: result["আপলোড ব্যাংক/বিকাশ/নগদ ডিপোজিট স্লিপ/স্ক্রিনশট"] || result["Upload Bank or (bKash/Rocket/Nagad) Deposit Slip/Screenshot"],
+              clientDivision: result["বিভাগ"] || result["State/Division"],
+              jointApplicantSign: result["Upload Signature of Joint Applicant (signature must match your NID card)"],
+              fields: result
+            })
+          });
+          
         const res = await response.json()
         setServerResponse(res.message)
         setLoading(false)
@@ -124,6 +127,7 @@ const MyEditor = () => {
         if (clientId) {
             convertToJson()
         }
+        return setClientId('')
     }, [clientId])
     return (
         <>
