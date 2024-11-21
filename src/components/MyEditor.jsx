@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion'
 import { Editor } from '@tinymce/tinymce-react';
 import moment from 'moment'
 import logo from './../../src/assets/images/midway-logo-moto.png'
+import Cropper from "react-cropper";
+import "cropperjs/dist/cropper.css";
 const MyEditor = () => {
     const [inputText, setInputText] = useState('');
     const [windowWidth, setWindowWidth] = useState()
@@ -10,6 +12,10 @@ const MyEditor = () => {
     const [clientId, setClientId] = useState();
     const [loading, setLoading] = useState(false);
     const [serverResponse, setServerResponse] = useState('')
+    const [clientInfos, setClientInfos] = useState({})
+    const [documents, setDocuments] = useState({})
+    const cropperRefs = useRef([]);
+
     useEffect(() => {
         setWindowWidth(window.innerWidth)
         window.addEventListener('resize', () => {
@@ -21,7 +27,7 @@ const MyEditor = () => {
         setInputText(content)
     };
 
-    console.log(windowWidth)
+
     function formatDate(dateStr) {
         let date = moment(dateStr, ['DD/MM/YYYY', 'DD-MMM-YYYY']);
 
@@ -32,14 +38,12 @@ const MyEditor = () => {
         return date.format('DDMMYYYY');
     }
 
-
     function extractDataFromHTML(htmlString) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, 'text/html');
         const data = {};
         console.log(doc)
         const strongTags = doc.querySelectorAll('p strong');
-        console.log(strongTags)
         strongTags.forEach((strongTag) => {
             const fieldName = strongTag.textContent.trim();
             let fieldValue = '';
@@ -64,6 +68,13 @@ const MyEditor = () => {
 
         return data;
     }
+
+    useEffect(() => {
+        if (inputText) {
+            const infos = extractDataFromHTML(inputText)
+            setClientInfos(infos)
+        }
+    }, [inputText])
 
     const convertToJson = async () => {
         const result = extractDataFromHTML(inputText)
@@ -116,7 +127,8 @@ const MyEditor = () => {
         // const url = window.URL.createObjectURL(blob);
         // window.open(url, "_blank");
     };
-
+    
+    console.log(serverResponse)
     useEffect(() => {
         if (isSubmitButtonClicked) {
             const clientId = prompt('Add client Id.')
@@ -129,40 +141,93 @@ const MyEditor = () => {
             convertToJson()
         }
     }, [clientId])
+
+
+    const mockImageUrls = [
+        'https://raw.githubusercontent.com/roadmanfong/react-cropper/master/example/img/child.jpg',
+        'https://raw.githubusercontent.com/roadmanfong/react-cropper/master/example/img/child.jpg',
+        'https://raw.githubusercontent.com/roadmanfong/react-cropper/master/example/img/child.jpg',
+    ];
+    console.log(clientInfos)
+    useEffect(() => {
+        // Simulate data extraction
+        if (Object.keys(clientInfos).length>1) {
+            setDocuments({
+                clientPhoto1: clientInfos['একক আবেদনকারীর পাসপোর্ট আকারের ছবি আপলোড করুন'] || clientInfos['Upload Passport Sized Photograph of Single Applicant'],
+                clientPhoto2: clientInfos['নমিনির পাসপোর্ট সাইজ ছবিটি আপলোড করুন'] || clientInfos['Upload Passport Sized Photo of Nominee'],
+                clientPhoto3: clientInfos['একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)'] || clientInfos['Upload Signature of Single Applicant (signature must match your NID card)'],
+            });
+        }
+    }, [clientInfos]);
+
+    console.log(documents)
+    const handleCrop = (index) => {
+        if (cropperRefs.current[index]) {
+            const croppedDataUrl = cropperRefs.current[index].getCroppedCanvas().toDataURL();
+            console.log(`Cropped image ${index}:`, croppedDataUrl);
+        }
+    };
+
     return (
         <>
             {loading && (
                 <div className='fixed top-0 bottom-0 left-0 right-0 z-100 flex justify-center items-center text-2xl'>Generating Folder, Please wait...</div>
             )}
-            <div className={`${loading?'hidden':'flex'} justify-center flex-col items-center mt-8 gap-8`}>
+            <div className={`${loading ? 'hidden' : 'flex'} justify-center flex-row items-center mt-8 gap-8`}>
 
-                <div className='flex flex-col items-center gap-2 h-[15vh]'>
-                    <img src={logo} width="60px" />
-                    <h1 className='text-3xl font-semibold'>BO form fill up</h1>
-                </div>
-                <motion.div className=''>
-                    <div className='flex flex-col items-center gap-4 h-[85]'>
-                        <Editor
-                            className=""
-                            apiKey="t07rqm8g7iq1q374jkgsazk2vgbmxdowxpa25njpkiwbwj1b"
-                            init={{
-                                height: windowWidth <= 1600?400:400,
-                                width: 500,
-                                menubar: false,
-                                plugins: ['link'],
-                                toolbar: 'undo redo | formatselect | bold italic | link | underline',
-                            }}
-                            onEditorChange={handleEditorChange}
-                            onFocus={() => setServerResponse('')}
-                        />
-                        <div className='flex flex-col justify-center w-full items-center gap-2'>
-                            <div className='text-red-500'>{serverResponse?<p>{serverResponse}</p>:''}</div>
-                            {/* <button type='submit' onClick={convertToJson} className='border rounded-sm p-2'>Fill BO form</button> */}
-                            <button type='submit' onClick={() => setIsSubmitButtonClicked(true)} className='border rounded-sm p-2'>Fill BO form</button>
-                        </div>
+                <div>
+                    <div className='flex flex-col items-center gap-2 h-[15vh]'>
+                        <img src={logo} width="60px" />
+                        <h1 className='text-3xl font-semibold'>BO form fill up</h1>
                     </div>
-                    {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
-                </motion.div>
+                    <motion.div className=''>
+                        <div className='flex flex-col items-center gap-4 h-[85]'>
+                            <Editor
+                                className=""
+                                apiKey="t07rqm8g7iq1q374jkgsazk2vgbmxdowxpa25njpkiwbwj1b"
+                                init={{
+                                    height: windowWidth <= 1600 ? 400 : 400,
+                                    width: 500,
+                                    menubar: false,
+                                    plugins: ['link'],
+                                    toolbar: 'undo redo | formatselect | bold italic | link | underline',
+                                }}
+                                onEditorChange={handleEditorChange}
+                                onFocus={() => setServerResponse('')}
+                            />
+                            <div className='flex flex-col justify-center w-full items-center gap-2'>
+                                <div className='text-red-500'>{serverResponse ? <p>{serverResponse}</p> : ''}</div>
+                                {/* <button type='submit' onClick={convertToJson} className='border rounded-sm p-2'>Fill BO form</button> */}
+                                <button type='submit' onClick={() => setIsSubmitButtonClicked(true)} className='border rounded-sm p-2'>Fill BO form</button>
+                            </div>
+                        </div>
+                        {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
+                    </motion.div>
+                </div>
+                <div className='flex gap-8'>
+                    <div className='w-[900px] h-[400px] flex flex-wrap gap-2'>
+                        {Object.values(documents)
+                            .filter((item) => item.endsWith('.png') || item.endsWith('.jpg') || item.endsWith('.jpeg'))
+                            .map((src, i) => (
+                                <figure key={i} className="flex flex-col items-center gap-2">
+                                    <Cropper
+                                        src={src}
+                                        style={{ height: 200, width: 250 }}
+                                        initialAspectRatio={16 / 9}
+                                        guides={false}
+                                        ref={(el) => (cropperRefs.current[i] = el)}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleCrop(i)}
+                                        className="mt-2 border rounded-sm p-1"
+                                    >
+                                        Crop Image {i + 1}
+                                    </button>
+                                </figure>
+                            ))}
+                    </div>
+                </div>
             </div>
         </>
     );
