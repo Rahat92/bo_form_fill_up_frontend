@@ -42,7 +42,6 @@ const MyEditor = () => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, 'text/html');
         const data = {};
-        console.log(doc)
         const strongTags = doc.querySelectorAll('p strong');
         strongTags.forEach((strongTag) => {
             const fieldName = strongTag.textContent.trim();
@@ -80,9 +79,15 @@ const MyEditor = () => {
         const result = extractDataFromHTML(inputText)
         const date = formatDate(result['জন্ম তারিখ']) || formatDate(result['Date of Birth'])
         setLoading(true)
-        const response = await fetch(`http://${process.env.REACT_APP_IP}:3001/modify-pdf`, {
+        const response = await fetch(`http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-store',   // Ensure no caching for the request and response
+              'Pragma': 'no-cache',          // Older header support
+              'Expires': '0'                 // Expired immediately
+            },
+          
             body: JSON.stringify(
                 {
                     clientId: clientId,
@@ -140,6 +145,7 @@ const MyEditor = () => {
         if (clientId) {
             convertToJson()
         }
+        return setClientId('')
     }, [clientId])
 
 
