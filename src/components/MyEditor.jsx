@@ -157,7 +157,7 @@ const MyEditor = () => {
                     clientDivision: result["বিভাগ"] || result["State/Division"],
                     jointApplicantSign: result["Upload Signature of Joint Applicant (signature must match your NID card)"],
 
-                    clientCroppedSignature: croppedSignature,
+                    // clientCroppedSignature: croppedSignature,
                     fields: result
                 }
             )
@@ -283,7 +283,8 @@ const MyEditor = () => {
                                         <Cropper
                                             src={src}
                                             style={{ height: 200, width: 250 }}
-                                            initialAspectRatio={16 / 9}
+                                            // initialAspectRatio={16 / 9}
+                                            initialAspectRatio={30 / 15}
                                             guides={false}
                                             ref={(cropper) => {
                                                 if (cropper && !isReady.has(index)) {
@@ -304,8 +305,8 @@ const MyEditor = () => {
 
                                     </div>
                                 ))}
-                                {cropperRefs.current && cropperRefs.current[0] && cropperRefs.current[0] && (
-                                    <>
+                                
+                                <>
                                         <p className='text-2xl'><b>Client Signature</b></p>
                                         <button
                                             onClick={handleGetCroppedImages}
@@ -315,8 +316,6 @@ const MyEditor = () => {
                                             Get Cropped Images
                                         </button>
                                     </>
-
-                                )}
                             </div>
 
                         </div>
