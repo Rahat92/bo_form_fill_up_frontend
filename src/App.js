@@ -9,9 +9,9 @@ const TextToJsonConverter = () => {
     return (
         <div>
             <MyEditor />
-
+{/* 
             <ImageEditor />
-            <ReactTooltip />
+            <ReactTooltip /> */}
         </div>
     );
 };

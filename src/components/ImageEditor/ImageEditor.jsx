@@ -58,6 +58,7 @@ function ImageEditor() {
     const croppedCanvas = cropperRef.current.cropper.getCroppedCanvas();
     if (croppedCanvas) {
       const croppedUrl = croppedCanvas.toDataURL();
+      console.log(croppedUrl)
       setCroppedImage(croppedUrl);
     }
   };
