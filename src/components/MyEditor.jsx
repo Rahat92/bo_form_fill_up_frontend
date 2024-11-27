@@ -255,7 +255,8 @@ const MyEditor = () => {
             ]
         );
         formData.append('signature', file)
-        formData.append('fields', result)
+        formData.append('fields', JSON.stringify(result))
+        console.log(result)
         const response = await axios.post(
             `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
             {
