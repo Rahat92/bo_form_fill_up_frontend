@@ -104,8 +104,8 @@ const MyEditor = () => {
     const onRotate = (direction) => () => {
         console.log(cropperRefs);
         const angleConfig = {
-            left: -20,
-            right: 20,
+            left: -10,
+            right: 10,
         };
         const angle = angleConfig[direction] || 0;
         cropperRefs.current &&
@@ -443,9 +443,9 @@ const MyEditor = () => {
                     } justify-center flex-row items-center mt-8 gap-24`}
             >
                 <div>
-                    <div className="flex flex-col items-center gap-2 h-[15vh]">
-                        <img src={logo} width="60px" />
-                        <h1 className="text-3xl font-semibold">BO form fill up</h1>
+                    <div className="flex flex-col items-center gap-2 h-[16vh]">
+                        <img src={logo} width="40px" />
+                        <h1 className="text-2xl font-semibold">BO form fill up</h1>
                     </div>
                     <motion.div className="flex gap-24 items-center">
                         <div className="flex flex-col items-center gap-4 h-[85]">
