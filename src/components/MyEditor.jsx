@@ -42,7 +42,6 @@ const MyEditor = () => {
     };
 
     const handleGetCroppedImages = () => {
-        console.log(cropperRefs.current && cropperRefs.current.length);
         let croppedSignature;
         if (cropperRefs.current && cropperRefs.current.length > 0) {
             cropperRefs.current.forEach((cropper, index) => {
@@ -401,7 +400,20 @@ const MyEditor = () => {
                             })
                     )
             );
-            setImages(loadedImages.filter(Boolean)); // Only use successfully loaded images
+            const loadedImagesTags = Object.keys(clientInfos).filter((item, ind) => {
+                if(Object.values(clientInfos)[ind].includes('.png') || Object.values(clientInfos)[ind].includes('.jpg') || Object.values(clientInfos)[ind].includes('.jpet')){
+                    return true
+                }
+            })
+            console.log(loadedImagesTags)
+            const imgObj = loadedImages.map((imgitem, imgind) => {
+                return {
+                    img: imgitem,
+                    tag: loadedImagesTags[imgind]
+                }
+            })
+            // setImages(loadedImages.filter(Boolean)); // Only use successfully loaded images
+            setImages(imgObj); // Only use successfully loaded images
         };
 
         preloadImages();
@@ -469,11 +481,15 @@ const MyEditor = () => {
                                 className={`w-[200px] flex flex-col items-center justify-center gap-2`}
                             >
                                 {images
-                                    .filter((item, index) => index === 0)
-                                    .map((src, index) => (
+                                    .filter((item, index) => {
+                                        if(item.tag === 'একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)' || item.tag === 'Upload Signature of Single Applicant (signature must match your NID card)'){
+                                            return true
+                                        }
+                                    })
+                                    .map((finalItem, index) => (
                                         <div key={index} className="cropper-container">
                                             <Cropper
-                                                src={src}
+                                                src={finalItem.img}
                                                 style={{ height: 200, width: 250 }}
                                                 // initialAspectRatio={16 / 9}
                                                 initialAspectRatio={300 / 80}
