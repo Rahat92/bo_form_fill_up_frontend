@@ -401,7 +401,7 @@ const MyEditor = () => {
                     )
             );
             const loadedImagesTags = Object.keys(clientInfos).filter((item, ind) => {
-                if(Object.values(clientInfos)[ind].includes('.png') || Object.values(clientInfos)[ind].includes('.jpg') || Object.values(clientInfos)[ind].includes('.jpet')){
+                if(Object.values(clientInfos)[ind].includes('.png') || Object.values(clientInfos)[ind].includes('.jpg') || Object.values(clientInfos)[ind].includes('.jpeg')){
                     return true
                 }
             })
@@ -430,7 +430,7 @@ const MyEditor = () => {
             }
         }
     }, [images]);
-
+    console.log(images)
     return (
         <>
             {loading && (
@@ -482,7 +482,7 @@ const MyEditor = () => {
                             >
                                 {images
                                     .filter((item, index) => {
-                                        if(item.tag === 'একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)' || item.tag === 'Upload Signature of Single Applicant (signature must match your NID card)'){
+                                        if(item.tag === 'Upload Signature of Single Applicant (signature must match your NID card)'|| item.tag === 'একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)'){
                                             return true
                                         }
                                     })
