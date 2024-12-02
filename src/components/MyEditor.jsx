@@ -256,93 +256,29 @@ const MyEditor = () => {
         formData.append('signature', file)
         formData.append('fields', JSON.stringify(result))
         console.log(result)
-        const response = await axios.post(
-            `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-                // body: formData
-                // body: JSON.stringify({
-                //   clientId: clientId,
-                //   clientName:
-                //     result["একক আবেদনকারী নাম"] ||
-                //     result["Single Applicant Name"] ||
-                //     result["1st Applicant Name"],
-                //   clientGender: result["লিঙ্গ"] || result["Gender"],
-                //   clientEmail: result["ইমেইল"] || result["Email"],
-                //   clientDateOfBirth: date,
-                //   clientGuardian:
-                //     result["পিতার / স্বামী / সিইও এর নাম"] ||
-                //     result["Father's/Husband's/CEO's Name"],
-                //   clientMother: result["মায়ের নাম"] || result["Mother's Name"],
-                //   boType:
-                //     result["একক আবেদনকারী নাম"] || result["Single Applicant Name"]
-                //       ? "single"
-                //       : "joint",
-                //   clientAddress: result["ঠিকানা"] || result["Address"],
-                //   clientPostalCode: result["পোস্টাল কোড"] || result["Postal Code"],
-                //   clientCity: result["শহর"] || result["City"],
-                //   clientCountry: result["দেশ"] || result["Country"],
-                //   clientMobileNumber:
-                //     result["মোবাইল নাম্বার"] || result["Mobile Number"],
-                //   clientNationality: result["জাতীয়তা"] || result["Nationality"],
-                //   clientNid:
-                //     result["জাতীয় আইডি নাম্বার"] || result["National ID Number"],
-                //   clientOccupation: result["পেশা"] || result["Occupation"],
-                //   clientNominyPhoto:
-                //     result["নমিনির পাসপোর্ট সাইজ ছবিটি আপলোড করুন"] ||
-                //     result["Upload Passport Sized Photo of Nominee"],
-                //   clientPhoto:
-                //     result["একক আবেদনকারীর পাসপোর্ট আকারের ছবি আপলোড করুন"] ||
-                //     result["Upload Passport Sized Photograph of Single Applicant"],
-                //   clientSignature:
-                //     result[
-                //       "একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)"
-                //     ] ||
-                //     result[
-                //       "Upload Signature of Single Applicant (signature must match your NID card)"
-                //     ],
-                //   clientNidPhoto:
-                //     result["একক আবেদনকারীর জন্য জাতীয় আইডি এর ফটোকপি আপলোড করুন"] ||
-                //     result["Upload Photocopy of National ID for Single Applicant"],
-                //   jointApplicantName: result["Joint Applicant Name"],
-                //   jointApplicantPhoto:
-                //     result["Upload Passport Sized Photograph of Joint Applicant"],
-
-                //   clientBankName:
-                //     result["আপনার ব্যাংকের নাম"] || result["Name of your Bank"],
-                //   clientBankDepositeScreenShot:
-                //     result["আপলোড ব্যাংক/বিকাশ/নগদ ডিপোজিট স্লিপ/স্ক্রিনশট"] ||
-                //     result[
-                //       "Upload Bank or (bKash/Rocket/Nagad) Deposit Slip/Screenshot"
-                //     ],
-                //   clientBankAccountNumber:
-                //     result["ব্যাংক একাউন্ট নাম্বার"] || result["Bank Account Number"],
-                //   clientBankRoutingNumber:
-                //     result["ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)"] ||
-                //     result["Routing Number (Optional)"],
-
-                //   clientDivision: result["বিভাগ"] || result["State/Division"],
-                //   jointApplicantSign:
-                //     result[
-                //       "Upload Signature of Joint Applicant (signature must match your NID card)"
-                //     ],
-
-                //   // clientCroppedSignature: croppedSignature,
-                //   fields: result,
-                // }),
-            }
-        );
-        const res = response;
-        console.log(res)
-        setServerResponse(res?.data.message);
-        setLoading(false);
+        try {
+            const { data } = await axios.post(
+                `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+            setServerResponse(data.message);
+            setLoading(false);
+        } catch (err) {
+            console.log('my cute error ', err.response?.data?.message)
+            setServerResponse(err.response?.data?.message);
+            setLoading(false);
+        }
+        // const res = response;
+        // console.log(res)
         // const blob = await response.blob();
         // const url = window.URL.createObjectURL(blob);
         // window.open(url, "_blank");
     };
-
+    console.log(serverResponse)
     useEffect(() => {
         if (isSubmitButtonClicked) {
             const clientId = prompt("Add client Id.");
@@ -353,6 +289,7 @@ const MyEditor = () => {
     useEffect(() => {
         if (clientId) {
             convertToJson();
+            localStorage.setItem('clientId', clientId)
         }
         return setClientId("");
     }, [clientId]);
@@ -401,7 +338,7 @@ const MyEditor = () => {
                     )
             );
             const loadedImagesTags = Object.keys(clientInfos).filter((item, ind) => {
-                if(Object.values(clientInfos)[ind].includes('.png') || Object.values(clientInfos)[ind].includes('.jpg') || Object.values(clientInfos)[ind].includes('.jpeg')){
+                if (Object.values(clientInfos)[ind].includes('.png') || Object.values(clientInfos)[ind].includes('.jpg') || Object.values(clientInfos)[ind].includes('.jpeg')) {
                     return true
                 }
             })
@@ -430,7 +367,7 @@ const MyEditor = () => {
             }
         }
     }, [images]);
-    console.log(images)
+    console.log(localStorage.getItem('clientId'))
     return (
         <>
             {loading && (
@@ -465,7 +402,7 @@ const MyEditor = () => {
                             />
                             <div className="flex flex-col justify-center w-full items-center gap-2">
                                 <div className="text-red-500">
-                                    {serverResponse ? <p>{serverResponse}</p> : ""}
+                                    {serverResponse?.length > 0 ? <p>{serverResponse}</p> : ""}
                                 </div>
                                 <button
                                     type="submit"
@@ -474,6 +411,11 @@ const MyEditor = () => {
                                 >
                                     Fill BO form
                                 </button>
+                                <button className="border p-3 bg-green-500 rounded-lg text-white text-lg mt-2" onClick={async () => {
+                                    console.log(localStorage.getItem('clientId'))
+                                    const folderName = localStorage.getItem('clientId')
+                                    await axios.get(`http://${process.env.REACT_APP_IP}:3001/open-folder/${folderName}`)
+                                }}>Open Current BO folder</button>
                             </div>
                         </div>
                         <div className={`${images?.length > 0 ? "flex" : "hidden"} gap-8`}>
@@ -482,7 +424,7 @@ const MyEditor = () => {
                             >
                                 {images
                                     .filter((item, index) => {
-                                        if(item.tag === 'Upload Signature of Single Applicant (signature must match your NID card)'|| item.tag === 'একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)'){
+                                        if (item.tag === 'Upload Signature of Single Applicant (signature must match your NID card)' || item.tag === 'একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)') {
                                             return true
                                         }
                                     })
@@ -559,6 +501,7 @@ const MyEditor = () => {
                             ))}
                     </div>
                 </div> */}
+
             </div>
         </>
     );
