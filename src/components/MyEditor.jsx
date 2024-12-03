@@ -404,18 +404,20 @@ const MyEditor = () => {
                                 <div className="text-red-500">
                                     {serverResponse?.length > 0 ? <p>{serverResponse}</p> : ""}
                                 </div>
-                                <button
-                                    type="submit"
-                                    onClick={() => setIsSubmitButtonClicked(true)}
-                                    className="border rounded-sm p-2"
-                                >
-                                    Fill BO form
-                                </button>
-                                <button className="border p-3 bg-green-500 rounded-lg text-white text-lg mt-2" onClick={async () => {
-                                    console.log(localStorage.getItem('clientId'))
-                                    const folderName = localStorage.getItem('clientId')
-                                    await axios.get(`http://${process.env.REACT_APP_IP}:3001/open-folder/${folderName}`)
-                                }}>Open Current BO folder</button>
+                                <div className="flex justify-center gap-4 items-center">
+                                    <button
+                                        type="submit"
+                                        onClick={() => setIsSubmitButtonClicked(true)}
+                                        className="border rounded-sm p-2"
+                                    >
+                                        Fill BO form
+                                    </button>
+                                    <button className="border rounded-sm p-2" onClick={async () => {
+                                        console.log(localStorage.getItem('clientId'))
+                                        const folderName = localStorage.getItem('clientId')
+                                        await axios.get(`http://${process.env.REACT_APP_IP}:3001/open-folder/${folderName}`)
+                                    }}>Open BO</button>
+                                </div>
                             </div>
                         </div>
                         <div className={`${images?.length > 0 ? "flex" : "hidden"} gap-8`}>
