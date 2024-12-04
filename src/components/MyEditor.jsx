@@ -29,7 +29,11 @@ const MyEditor = () => {
     const cropperRefs = useRef([]); // Use useRef for storing cropper instances
     const [images, setImages] = useState([]);
     const [isReady, setIsReady] = useState(new Set());
-    const imageRef = useRef();
+    const [warnings, setWarnings] = useState({
+        dob: '',
+    })
+    const [results, setResults] = useState([])
+    console.log(results)
     useEffect(() => {
         setWindowWidth(window.innerWidth);
         window.addEventListener("resize", () => {
@@ -39,6 +43,7 @@ const MyEditor = () => {
 
     const handleEditorChange = (content) => {
         setInputText(content);
+        convertToJson()
     };
 
     const handleGetCroppedImages = () => {
@@ -54,7 +59,6 @@ const MyEditor = () => {
         return croppedSignature;
     };
     function formatDate(dateStr) {
-        console.log(dateStr)
         let date = moment(dateStr, ["DD/MM/YYYY", "DD-MMM-YYYY"]);
         console.log(date)
         if (!date.isValid()) {
@@ -115,11 +119,12 @@ const MyEditor = () => {
 
     const convertToJson = async () => {
         const result = extractDataFromHTML(inputText);
+        console.log(result)
+        setResults([result])
         const croppedSignature = handleGetCroppedImages();
         const resp = await fetch(croppedSignature);
         const blob = await resp.blob();
         const file = new File([blob], "cropped-image.png", { type: "image/jpg" });
-        console.log(file);
         const date = formatDate(result["জন্ম তারিখ"] || result["Date of Birth"]);
         setLoading(true);
         const formData = new FormData();
@@ -272,13 +277,9 @@ const MyEditor = () => {
             setServerResponse(err.response?.data?.message);
             setLoading(false);
         }
-        // const res = response;
-        // console.log(res)
-        // const blob = await response.blob();
-        // const url = window.URL.createObjectURL(blob);
-        // window.open(url, "_blank");
+       
     };
-    console.log(serverResponse)
+
     useEffect(() => {
         if (isSubmitButtonClicked) {
             const clientId = prompt("Add client Id.");
@@ -288,13 +289,32 @@ const MyEditor = () => {
     }, [isSubmitButtonClicked]);
     useEffect(() => {
         if (clientId) {
-            convertToJson();
             localStorage.setItem('clientId', clientId)
         }
         return setClientId("");
     }, [clientId]);
+    useEffect(() => {
+        if(inputText){
+            convertToJson()
+        }
+    },[inputText])
+    console.log(results)
 
-    console.log(clientInfos);
+    useEffect(() => {
+        if(results.length>0){
+            console.log('results ', results[0]['Date of Birth']?.includes('/'))
+            setWarnings({...warnings, dob: results[0]&&results[0]['Date of Birth']?.includes['.']?'Invalid date format':''})
+            // if(results[0]&&results[0]['Date of Birth']?.includes['.']){
+            //     setWarnings(prev => {
+            //         return {
+            //             ...prev,
+            //             dob:'Invalid date of birth. please make this correct.'
+            //         }
+            //     })
+            // }
+        }
+    }, [results[0]])
+    console.log(warnings)
     useEffect(() => {
         if (Object.keys(clientInfos).length > 1) {
             setDocuments({
@@ -367,7 +387,6 @@ const MyEditor = () => {
             }
         }
     }, [images]);
-    console.log(localStorage.getItem('clientId'))
     return (
         <>
             {loading && (
@@ -466,44 +485,12 @@ const MyEditor = () => {
                                     <p className="text-2xl">
                                         <b>Client Signature</b>
                                     </p>
-                                    {/* <button
-                    onClick={handleGetCroppedImages}
-                    className="btn-primary"
-                    // disabled={isReady.size < images.length} // Disable button if not all are ready
-                  >
-                    Get Cropped Images
-                  </button> */}
                                 </>
                             </div>
                         </div>
                         {/* <div dangerouslySetInnerHTML={{ __html: content }} /> */}
                     </motion.div>
                 </div>
-                {/* <div className='flex gap-8'>
-                    <div className='w-[900px] h-[400px] flex flex-wrap gap-2'>
-                        {Object.values(documents)
-                            .filter((item) => item.endsWith('.png') || item.endsWith('.jpg') || item.endsWith('.jpeg'))
-                            .map((src, i) => (
-                                <figure key={i} className="flex flex-col items-center gap-2">
-                                    <Cropper
-                                        src={src}
-                                        style={{ height: 200, width: 250 }}
-                                        initialAspectRatio={16 / 9}
-                                        guides={false}
-                                        ref={(el) => (cropperRefs.current[i] = el)}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => handleCropAll(i)}
-                                        className="mt-2 border rounded-sm p-1"
-                                    >
-                                        Crop Image {i + 1}
-                                    </button>
-                                </figure>
-                            ))}
-                    </div>
-                </div> */}
-
             </div>
         </>
     );
