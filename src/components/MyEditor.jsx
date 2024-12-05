@@ -9,7 +9,7 @@ import {
 import styles from "./ImageEditor.module.css";
 import ControlButton from "./ControlButton.jsx";
 
-import { motion } from "framer-motion";
+import { motion, warning } from "framer-motion";
 import { Editor } from "@tinymce/tinymce-react";
 import moment from "moment";
 import logo from "./../../src/assets/images/midway-logo-moto.png";
@@ -17,6 +17,7 @@ import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import axios from "axios";
 const MyEditor = () => {
+    const [typing, setTyping] = useState(false)
     const [inputText, setInputText] = useState("");
     const [windowWidth, setWindowWidth] = useState();
     const [isSubmitButtonClicked, setIsSubmitButtonClicked] = useState();
@@ -32,6 +33,7 @@ const MyEditor = () => {
     const [warnings, setWarnings] = useState({
         dob: '',
     })
+    const [isDateValid, setIsDateValid] = useState(null)
     const [results, setResults] = useState([])
     console.log(results)
     useEffect(() => {
@@ -53,7 +55,7 @@ const MyEditor = () => {
                 croppedSignature =
                     cropperRefs.current &&
                     cropperRefs.current[index] &&
-                    cropperRefs.current[index].cropper.getCroppedCanvas().toDataURL();
+                    cropperRefs.current[index]?.cropper?.getCroppedCanvas()?.toDataURL();
             });
         }
         return croppedSignature;
@@ -127,6 +129,7 @@ const MyEditor = () => {
         const file = new File([blob], "cropped-image.png", { type: "image/jpg" });
         const date = formatDate(result["জন্ম তারিখ"] || result["Date of Birth"]);
         // setLoading(true);
+        console.log(date)
         const formData = new FormData();
         formData.append(
             "clientId",
@@ -277,9 +280,9 @@ const MyEditor = () => {
         //     setServerResponse(err.response?.data?.message);
         //     setLoading(false);
         // }
-       
-    };
 
+    };
+    console.log(inputText.length)
     useEffect(() => {
         if (isSubmitButtonClicked) {
             const clientId = prompt("Add client Id.");
@@ -294,30 +297,45 @@ const MyEditor = () => {
         return setClientId("");
     }, [clientId]);
     useEffect(() => {
-        if(inputText){
+        if (inputText) {
             convertToJson()
         }
-    },[inputText])
-    console.log(results)
+
+    }, [inputText])
 
     useEffect(() => {
-        if(results.length>0){
-            if(('results ', results[0]['Date of Birth']?.includes('.'))){
-                setWarnings({...warnings, dob: 'Invalid Date of Birth.'})
-            }else {
-                setWarnings({...warnings, dob: ''})
-            }
-            // if(results[0]&&results[0]['Date of Birth']?.includes['.']){
-            //     setWarnings(prev => {
-            //         return {
-            //             ...prev,
-            //             dob:'Invalid date of birth. please make this correct.'
-            //         }
-            //     })
-            // }
+        if (inputText) {
+            setTimeout(() => {
+                if (results.length > 0 && JSON.stringify(results[0]).length > 150) {
+
+                    const date = formatDate(results[0]["জন্ম তারিখ"] || results[0]["Date of Birth"]);
+                    // setLoading(true);
+                    console.log('hello this is date', date)
+                    if (date === 'Invalid date') {
+                        setIsDateValid(false)
+                        setWarnings({ ...warnings, dob: 'Invalid Date of Birth.' })
+                    } else {
+                        setIsDateValid(true)
+                        setWarnings({ ...warnings, dob: '' })
+                    }
+
+                    // if(results[0]&&results[0]['Date of Birth']?.includes['.']){
+                    //     setWarnings(prev => {
+                    //         return {
+                    //             ...prev,
+                    //             dob:'Invalid date of birth. please make this correct.'
+                    //         }
+                    //     })
+                    // }
+                }
+            }, 1000);
         }
-    }, [JSON.stringify(results[0])])
-    console.log(warnings)
+        // return () => {
+        //     setWarnings({ dob: '' });
+        //     console.log('Hello world')
+        // }
+    }, [inputText])
+    console.log(warnings.dob)
     useEffect(() => {
         if (Object.keys(clientInfos).length > 1) {
             setDocuments({
@@ -341,6 +359,19 @@ const MyEditor = () => {
     useEffect(() => {
         cropperRefs.current = [];
     }, []);
+    console.log(isDateValid)
+    useEffect(() => {
+        let timer;
+        if (inputText) {
+            timer = setTimeout(() => {
+                if (inputText.length > 150 && !isDateValid) {
+                    setWarnings({...warnings, dob: 'Invalid Date of Birth!!'})
+                }
+            }, 1000)
+        }
+        
+        // return () => setWarnings({dob:''})
+    }, [inputText])
 
     useEffect(() => {
         const preloadImages = async () => {
@@ -372,7 +403,6 @@ const MyEditor = () => {
                     tag: loadedImagesTags[imgind]
                 }
             })
-            // setImages(loadedImages.filter(Boolean)); // Only use successfully loaded images
             setImages(imgObj); // Only use successfully loaded images
         };
 
@@ -390,6 +420,7 @@ const MyEditor = () => {
             }
         }
     }, [images]);
+    console.log(warnings)
     return (
         <>
             {loading && (
@@ -421,19 +452,25 @@ const MyEditor = () => {
                                 }}
                                 onEditorChange={handleEditorChange}
                                 onFocus={() => setServerResponse("")}
+                                onKeyPress={() => {
+                                    alert('Hello')
+                                }}
                             />
                             <div className="flex flex-col justify-center w-full items-center gap-2">
                                 <div className="text-red-500">
                                     {serverResponse?.length > 0 ? <p>{serverResponse}</p> : ""}
                                 </div>
                                 <div className="flex justify-center gap-4 items-center">
-                                    <button
-                                        type="submit"
-                                        onClick={() => setIsSubmitButtonClicked(true)}
-                                        className="border rounded-sm p-2"
-                                    >
-                                        Fill BO form
-                                    </button>
+                                    {isDateValid && (
+                                        <button
+                                            disabled={warnings.dob.length > 0 ? true : false}
+                                            type="submit"
+                                            onClick={() => setIsSubmitButtonClicked(true)}
+                                            className="border rounded-sm p-2"
+                                        >
+                                            Fill BO form
+                                        </button>
+                                    )}
                                     <button className="border rounded-sm p-2" onClick={async () => {
                                         console.log(localStorage.getItem('clientId'))
                                         const folderName = localStorage.getItem('clientId')
