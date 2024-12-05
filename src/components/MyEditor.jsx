@@ -126,7 +126,7 @@ const MyEditor = () => {
         const blob = await resp.blob();
         const file = new File([blob], "cropped-image.png", { type: "image/jpg" });
         const date = formatDate(result["জন্ম তারিখ"] || result["Date of Birth"]);
-        setLoading(true);
+        // setLoading(true);
         const formData = new FormData();
         formData.append(
             "clientId",
@@ -261,22 +261,22 @@ const MyEditor = () => {
         formData.append('signature', file)
         formData.append('fields', JSON.stringify(result))
         console.log(result)
-        try {
-            const { data } = await axios.post(
-                `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
-            );
-            setServerResponse(data.message);
-            setLoading(false);
-        } catch (err) {
-            console.log('my cute error ', err.response?.data?.message)
-            setServerResponse(err.response?.data?.message);
-            setLoading(false);
-        }
+        // try {
+        //     const { data } = await axios.post(
+        //         `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
+        //         {
+        //             headers: {
+        //                 "Content-Type": "multipart/form-data",
+        //             },
+        //         }
+        //     );
+        //     setServerResponse(data.message);
+        //     setLoading(false);
+        // } catch (err) {
+        //     console.log('my cute error ', err.response?.data?.message)
+        //     setServerResponse(err.response?.data?.message);
+        //     setLoading(false);
+        // }
        
     };
 
@@ -302,8 +302,11 @@ const MyEditor = () => {
 
     useEffect(() => {
         if(results.length>0){
-            console.log('results ', results[0]['Date of Birth']?.includes('/'))
-            setWarnings({...warnings, dob: results[0]&&results[0]['Date of Birth']?.includes['.']?'Invalid date format':''})
+            if(('results ', results[0]['Date of Birth']?.includes('.'))){
+                setWarnings({...warnings, dob: 'Invalid Date of Birth.'})
+            }else {
+                setWarnings({...warnings, dob: ''})
+            }
             // if(results[0]&&results[0]['Date of Birth']?.includes['.']){
             //     setWarnings(prev => {
             //         return {
@@ -313,7 +316,7 @@ const MyEditor = () => {
             //     })
             // }
         }
-    }, [results[0]])
+    }, [JSON.stringify(results[0])])
     console.log(warnings)
     useEffect(() => {
         if (Object.keys(clientInfos).length > 1) {
