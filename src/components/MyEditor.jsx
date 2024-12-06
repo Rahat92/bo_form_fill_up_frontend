@@ -17,6 +17,7 @@ import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import axios from "axios";
 const MyEditor = () => {
+    const [inputObj, setInputObj] = useState({})
     const [typing, setTyping] = useState(false)
     const [inputText, setInputText] = useState("");
     const [windowWidth, setWindowWidth] = useState();
@@ -32,22 +33,28 @@ const MyEditor = () => {
     const [isReady, setIsReady] = useState(new Set());
     const [warnings, setWarnings] = useState({
         dob: '',
+        firstName: '',
+        middleName: ''
     })
     const [isDateValid, setIsDateValid] = useState(null)
     const [results, setResults] = useState([])
-    console.log(results)
     useEffect(() => {
         setWindowWidth(window.innerWidth);
         window.addEventListener("resize", () => {
             setWindowWidth(window.innerWidth);
         });
     }, [window.innerWidth]);
-
-    const handleEditorChange = (content) => {
+    const [renderCount, setRenderCount] = useState(0)
+    useEffect(() => {
+        setRenderCount(prev => prev + 1)
+    }, [])
+    const handleEditorChange = async (content) => {
+        console.log(content)
         setInputText(content);
-        convertToJson()
+        const inputObj = await convertToJson(content)
+        // const date = formatDate(inputObj['Date of Birth'])
+        setInputObj(inputObj)
     };
-
     const handleGetCroppedImages = () => {
         let croppedSignature;
         if (cropperRefs.current && cropperRefs.current.length > 0) {
@@ -62,7 +69,6 @@ const MyEditor = () => {
     };
     function formatDate(dateStr) {
         let date = moment(dateStr, ["DD/MM/YYYY", "DD-MMM-YYYY"]);
-        console.log(date)
         if (!date.isValid()) {
             return "Invalid date";
         }
@@ -108,7 +114,6 @@ const MyEditor = () => {
     }, [inputText]);
 
     const onRotate = (direction) => () => {
-        console.log(cropperRefs);
         const angleConfig = {
             left: -10,
             right: 10,
@@ -119,17 +124,16 @@ const MyEditor = () => {
             cropperRefs.current[0].cropper.rotate(angle);
     };
 
-    const convertToJson = async () => {
+    const convertToJson = async (inputText) => {
         const result = extractDataFromHTML(inputText);
-        console.log(result)
         setResults([result])
+        return result;
         const croppedSignature = handleGetCroppedImages();
         const resp = await fetch(croppedSignature);
         const blob = await resp.blob();
         const file = new File([blob], "cropped-image.png", { type: "image/jpg" });
         const date = formatDate(result["জন্ম তারিখ"] || result["Date of Birth"]);
         // setLoading(true);
-        console.log(date)
         const formData = new FormData();
         formData.append(
             "clientId",
@@ -263,7 +267,7 @@ const MyEditor = () => {
         );
         formData.append('signature', file)
         formData.append('fields', JSON.stringify(result))
-        console.log(result)
+
         // try {
         //     const { data } = await axios.post(
         //         `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
@@ -282,7 +286,7 @@ const MyEditor = () => {
         // }
 
     };
-    console.log(inputText.length)
+
     useEffect(() => {
         if (isSubmitButtonClicked) {
             const clientId = prompt("Add client Id.");
@@ -310,7 +314,6 @@ const MyEditor = () => {
 
                     const date = formatDate(results[0]["জন্ম তারিখ"] || results[0]["Date of Birth"]);
                     // setLoading(true);
-                    console.log('hello this is date', date)
                     if (date === 'Invalid date') {
                         setIsDateValid(false)
                         setWarnings({ ...warnings, dob: 'Invalid Date of Birth.' })
@@ -335,7 +338,6 @@ const MyEditor = () => {
         //     console.log('Hello world')
         // }
     }, [inputText])
-    console.log(warnings.dob)
     useEffect(() => {
         if (Object.keys(clientInfos).length > 1) {
             setDocuments({
@@ -359,19 +361,49 @@ const MyEditor = () => {
     useEffect(() => {
         cropperRefs.current = [];
     }, []);
-    console.log(isDateValid)
-    useEffect(() => {
-        let timer;
-        if (inputText) {
-            timer = setTimeout(() => {
-                if (inputText.length > 150 && !isDateValid) {
-                    setWarnings({...warnings, dob: 'Invalid Date of Birth!!'})
-                }
-            }, 1000)
-        }
-        
-        // return () => setWarnings({dob:''})
-    }, [inputText])
+    // useEffect(() => {
+    //     let timer;
+    //     if (inputText) {
+    //         timer = setTimeout(() => {
+    //             if (inputText.length > 150 && !isDateValid) {
+    //                 setWarnings({...warnings, dob: 'Invalid Date of Birth!!'})
+    //             }
+    //         }, 1000)
+    //     }
+
+    //     // return () => setWarnings({dob:''})
+    // }, [inputText])
+    // useEffect(() => {
+    //     if(warnings.dob.length>10){
+    //         setTimeout(() => {
+    //             setWarnings({dob:''})
+    //         }, 1000);
+    //     }
+    // }, [warnings.dob.length])
+
+    const handleEditorPaste = (event, editor) => {
+        setTimeout(() => {
+            const content = editor.getContent(); // Get the current content
+            const regex = /<p><strong>Single Applicant Name<\/strong><br>.*?<br>/;
+            if (regex.test(content)) {
+                // Additional fields to add after the dynamic content
+                const additionalFields = `
+                    <br>
+                    <br><strong>First Name</strong><br>
+                    <br><br><br>
+                    <strong>Middle Name</strong><br>
+                    <br>
+                `;
+                // Inject additional fields after the matched structure
+                const updatedContent = content.replace(
+                    regex,
+                    (match) => match + additionalFields
+                );
+                editor.setContent(updatedContent); // Update the content
+            }
+        }, 0); // Delay to allow the paste to complete
+    };
+
 
     useEffect(() => {
         const preloadImages = async () => {
@@ -396,7 +428,6 @@ const MyEditor = () => {
                     return true
                 }
             })
-            console.log(loadedImagesTags)
             const imgObj = loadedImages.map((imgitem, imgind) => {
                 return {
                     img: imgitem,
@@ -420,7 +451,6 @@ const MyEditor = () => {
             }
         }
     }, [images]);
-    console.log(warnings)
     return (
         <>
             {loading && (
@@ -449,17 +479,24 @@ const MyEditor = () => {
                                     plugins: ["link"],
                                     toolbar:
                                         "undo redo | formatselect | bold italic | link | underline",
+                                    setup: (editor) => {
+                                        editor.on("paste", (event) => handleEditorPaste(event, editor));
+                                    }
                                 }}
                                 onEditorChange={handleEditorChange}
                                 onFocus={() => setServerResponse("")}
                                 onKeyPress={() => {
-                                    alert('Hello')
+                                    // handleEditorChange(inputText)
                                 }}
+                            // onMouseUp={() => {
+                            //     console.log('Hello Bangladesh')
+                            // }}
                             />
                             <div className="flex flex-col justify-center w-full items-center gap-2">
                                 <div className="text-red-500">
                                     {serverResponse?.length > 0 ? <p>{serverResponse}</p> : ""}
                                 </div>
+                                {warnings.dob ? warnings.dob : ''}
                                 <div className="flex justify-center gap-4 items-center">
                                     {isDateValid && (
                                         <button
@@ -472,7 +509,6 @@ const MyEditor = () => {
                                         </button>
                                     )}
                                     <button className="border rounded-sm p-2" onClick={async () => {
-                                        console.log(localStorage.getItem('clientId'))
                                         const folderName = localStorage.getItem('clientId')
                                         await axios.get(`http://${process.env.REACT_APP_IP}:3001/open-folder/${folderName}`)
                                     }}>Open BO</button>
