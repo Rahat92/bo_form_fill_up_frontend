@@ -126,6 +126,7 @@ const MyEditor = () => {
 
     const convertToJson = async (inputText) => {
         const result = extractDataFromHTML(inputText);
+        console.log(result)
         setResults([result])
         return result;
         const croppedSignature = handleGetCroppedImages();
@@ -361,47 +362,75 @@ const MyEditor = () => {
     useEffect(() => {
         cropperRefs.current = [];
     }, []);
-    // useEffect(() => {
-    //     let timer;
-    //     if (inputText) {
-    //         timer = setTimeout(() => {
-    //             if (inputText.length > 150 && !isDateValid) {
-    //                 setWarnings({...warnings, dob: 'Invalid Date of Birth!!'})
-    //             }
-    //         }, 1000)
-    //     }
 
-    //     // return () => setWarnings({dob:''})
-    // }, [inputText])
-    // useEffect(() => {
-    //     if(warnings.dob.length>10){
-    //         setTimeout(() => {
-    //             setWarnings({dob:''})
-    //         }, 1000);
-    //     }
-    // }, [warnings.dob.length])
 
-    const handleEditorPaste = (event, editor) => {
+    // const handleEditorChange = (content) => {
+    //     setInputText(content);
+    // };
+    useEffect(() => {
+        let timer;
+        if (inputText) {
+            timer = setTimeout(() => {
+                if (inputText.length > 150 && !isDateValid) {
+                    setWarnings({...warnings, dob: 'Invalid Date of Birth!!'})
+                }
+            }, 1000)
+        }
+
+        // return () => setWarnings({dob:''})
+    }, [inputText])
+    useEffect(() => {
+        if(warnings.dob.length>10){
+            setTimeout(() => {
+                setWarnings({dob:''})
+            }, 1000);
+        }
+    }, [warnings.dob.length])
+
+    const editorRef = useRef(null);
+
+    const additionalFields = `
+        <br><br>
+        <strong>First Name</strong><br>
+        <span class="custom-field" contenteditable="true" data-field="firstName">[Enter First Name]</span><br><br>
+        <br>
+        <strong>Middle Name</strong><br>
+        <span class="custom-field" contenteditable="true" data-field="middleName">[Enter Middle Name]</span><br>
+    `;
+
+    // const handleEditorChange = (content) => {
+    //     // Handle editor content changes if needed
+    // };
+
+    const handlePaste = () => {
+        if (!editorRef.current) return;
+
         setTimeout(() => {
-            const content = editor.getContent(); // Get the current content
-            const regex = /<p><strong>Single Applicant Name<\/strong><br>.*?<br>/;
-            if (regex.test(content)) {
-                // Additional fields to add after the dynamic content
-                const additionalFields = `
-                    <br>
-                    <br><strong>First Name</strong><br>
-                    <br><br><br>
-                    <strong>Middle Name</strong><br>
-                    <br>
-                `;
-                // Inject additional fields after the matched structure
-                const updatedContent = content.replace(
-                    regex,
-                    (match) => match + additionalFields
-                );
-                editor.setContent(updatedContent); // Update the content
+            const content = editorRef.current.getContent();
+            const regex = /(<p><strong>Single Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/;
+
+            // Ensure the placeholders are not duplicated
+            if (regex.test(content) && !content.includes("First Name")) {
+                const updatedContent = content.replace(regex, `$1${additionalFields}`);
+                editorRef.current.setContent(updatedContent);
             }
-        }, 0); // Delay to allow the paste to complete
+        }, 0);
+    };
+
+    const sanitizePlaceholders = (content) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, "text/html");
+        const fields = doc.querySelectorAll(".custom-field");
+
+        fields.forEach((field) => {
+            if (field.textContent.trim() === "") {
+                field.textContent = field.dataset.field === "firstName"
+                    ? "[Enter First Name]"
+                    : "[Enter Middle Name]";
+            }
+        });
+
+        return doc.body.innerHTML;
     };
 
 
@@ -473,15 +502,34 @@ const MyEditor = () => {
                                 className=""
                                 apiKey="t07rqm8g7iq1q374jkgsazk2vgbmxdowxpa25njpkiwbwj1b"
                                 init={{
-                                    height: windowWidth <= 1600 ? 400 : 400,
+                                    height: 400,
                                     width: 500,
                                     menubar: false,
                                     plugins: ["link"],
-                                    toolbar:
-                                        "undo redo | formatselect | bold italic | link | underline",
+                                    toolbar: "undo redo | formatselect | bold italic | link | underline",
+                                    extended_valid_elements: "span[class|contenteditable|data-field]",
                                     setup: (editor) => {
-                                        editor.on("paste", (event) => handleEditorPaste(event, editor));
-                                    }
+                                        editorRef.current = editor;
+
+                                        // Add paste event listener
+                                        editor.on("paste", () => {
+                                            handlePaste();
+
+                                            // Sanitize placeholders after paste
+                                            setTimeout(() => {
+                                                const sanitizedContent = sanitizePlaceholders(
+                                                    editor.getContent()
+                                                );
+                                                editor.setContent(sanitizedContent);
+                                            }, 0);
+                                        });
+
+                                        // Sanitize placeholders on editor load
+                                        editor.on("init", () => {
+                                            const sanitizedContent = sanitizePlaceholders(editor.getContent());
+                                            editor.setContent(sanitizedContent);
+                                        });
+                                    },
                                 }}
                                 onEditorChange={handleEditorChange}
                                 onFocus={() => setServerResponse("")}
@@ -492,6 +540,11 @@ const MyEditor = () => {
                             //     console.log('Hello Bangladesh')
                             // }}
                             />
+                            {/* <div
+                                dangerouslySetInnerHTML={{
+                                    __html: editorContent,
+                                }}
+                            ></div> */}
                             <div className="flex flex-col justify-center w-full items-center gap-2">
                                 <div className="text-red-500">
                                     {serverResponse?.length > 0 ? <p>{serverResponse}</p> : ""}
