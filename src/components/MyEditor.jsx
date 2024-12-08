@@ -52,6 +52,7 @@ const MyEditor = () => {
         console.log(content)
         setInputText(content);
         const inputObj = await convertToJson(content)
+        console.log(inputObj)
         // const date = formatDate(inputObj['Date of Birth'])
         setInputObj(inputObj)
     };
@@ -76,11 +77,53 @@ const MyEditor = () => {
         return date.format("DDMMYYYY");
     }
 
+    // function extractDataFromHTML(htmlString) {
+    //     const parser = new DOMParser();
+    //     const doc = parser.parseFromString(htmlString, "text/html");
+    //     const data = {};
+
+    //     // Select all strong tags
+    //     const strongTags = doc.querySelectorAll("p strong");
+    //     strongTags.forEach((strongTag) => {
+    //         const fieldName = strongTag.textContent.trim(); // Get the field name from <strong>
+    //         let fieldValue = "";
+
+    //         // Iterate over the siblings
+    //         let sibling = strongTag.nextSibling;
+    //         while (sibling) {
+    //             // Stop when we encounter another <strong>
+    //             if (sibling.nodeName === "STRONG") {
+    //                 break;
+    //             }
+
+    //             // Collect text from <span> and text nodes
+    //             if (sibling.nodeType === Node.ELEMENT_NODE && sibling.matches("span, a")) {
+    //                 fieldValue += sibling.textContent.trim();
+    //                 if (sibling.nodeName === "A") {
+    //                     fieldValue += ` (${sibling.href})`; // Append the link for <a> tags
+    //                 }
+    //             } else if (sibling.nodeType === Node.TEXT_NODE) {
+    //                 fieldValue += sibling.textContent.trim();
+    //             }
+
+    //             sibling = sibling.nextSibling;
+    //         }
+
+    //         // Store in the data object
+    //         if (fieldValue) {
+    //             data[fieldName] = fieldValue;
+    //         }
+    //     });
+
+    //     return data;
+    // }
+
     function extractDataFromHTML(htmlString) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, "text/html");
         const data = {};
         const strongTags = doc.querySelectorAll("p strong");
+
         strongTags.forEach((strongTag) => {
             const fieldName = strongTag.textContent.trim();
             let fieldValue = "";
@@ -95,7 +138,10 @@ const MyEditor = () => {
                 if (sibling.nodeType === Node.TEXT_NODE) {
                     fieldValue += sibling.textContent.trim();
                 } else if (sibling.nodeName === "A") {
-                    fieldValue += sibling.href;
+                    // Extract only the href value
+                    fieldValue += sibling.href.trim();
+                } else if (sibling.nodeName === "SPAN" || sibling.nodeName === "DIV") {
+                    fieldValue += sibling.textContent.trim();
                 }
                 sibling = sibling.nextSibling;
             }
@@ -372,7 +418,7 @@ const MyEditor = () => {
         if (inputText) {
             timer = setTimeout(() => {
                 if (inputText.length > 150 && !isDateValid) {
-                    setWarnings({...warnings, dob: 'Invalid Date of Birth!!'})
+                    setWarnings({ ...warnings, dob: 'Invalid Date of Birth!!' })
                 }
             }, 1000)
         }
@@ -380,9 +426,9 @@ const MyEditor = () => {
         // return () => setWarnings({dob:''})
     }, [inputText])
     useEffect(() => {
-        if(warnings.dob.length>10){
+        if (warnings.dob.length > 10) {
             setTimeout(() => {
-                setWarnings({dob:''})
+                setWarnings({ dob: '' })
             }, 1000);
         }
     }, [warnings.dob.length])
@@ -407,7 +453,13 @@ const MyEditor = () => {
 
         setTimeout(() => {
             const content = editorRef.current.getContent();
-            const regex = /(<p><strong>Single Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/;
+            console.log(content.includes('একক আবেদনকারী নাম'))
+            let regex;
+            if (content.includes('একক আবেদনকারী নাম')) {
+                regex = /(<p><strong>একক আবেদনকারী নাম<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/;
+            } else {
+                regex = /(<p><strong>Single Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/
+            }
 
             // Ensure the placeholders are not duplicated
             if (regex.test(content) && !content.includes("First Name")) {
@@ -436,6 +488,7 @@ const MyEditor = () => {
 
     useEffect(() => {
         const preloadImages = async () => {
+            console.log(Object.values(clientInfos))
             const loadedImages = await Promise.all(
                 Object.values(clientInfos)
                     .filter(
@@ -446,6 +499,12 @@ const MyEditor = () => {
                         (src) =>
                             new Promise((resolve) => {
                                 const img = new Image();
+                                let str = src;
+                                console.log(str)
+                                const regex = /\(([^)]+)\)/g;
+                                const matches = [...str.matchAll(regex)];
+                                const results = matches.map(match => match[1]);
+                                console.log(results[0])
                                 img.src = src;
                                 img.onload = () => resolve(src);
                                 img.onerror = () => resolve(null); // Skip broken images
@@ -457,7 +516,13 @@ const MyEditor = () => {
                     return true
                 }
             })
+            console.log(loadedImages)
             const imgObj = loadedImages.map((imgitem, imgind) => {
+                let str = imgitem;
+                const regex = /\(([^)]+)\)/g;
+                const matches = [...str.matchAll(regex)];
+                const results = matches.map(match => match[1]);
+
                 return {
                     img: imgitem,
                     tag: loadedImagesTags[imgind]
