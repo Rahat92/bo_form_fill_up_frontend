@@ -18,6 +18,8 @@ import "cropperjs/dist/cropper.css";
 import axios from "axios";
 const MyEditor = () => {
     const [inputObj, setInputObj] = useState({})
+    const [validFirstName, setValidFirstName] = useState(true)
+    const [validMiddleName, setValidMiddleName] = useState(true)
     const [typing, setTyping] = useState(false)
     const [inputText, setInputText] = useState("");
     const [windowWidth, setWindowWidth] = useState();
@@ -36,7 +38,7 @@ const MyEditor = () => {
         firstName: '',
         middleName: ''
     })
-    const [isDateValid, setIsDateValid] = useState(null)
+    const [isDateValid, setIsDateValid] = useState(true)
     const [results, setResults] = useState([])
     useEffect(() => {
         setWindowWidth(window.innerWidth);
@@ -49,12 +51,33 @@ const MyEditor = () => {
         setRenderCount(prev => prev + 1)
     }, [])
     const handleEditorChange = async (content) => {
-        console.log(content)
-        setInputText(content);
-        const inputObj = await convertToJson(content)
-        console.log(inputObj)
-        // const date = formatDate(inputObj['Date of Birth'])
-        setInputObj(inputObj)
+        console.log(content.length)
+        if (content.length > 150) {
+            setInputText(content);
+            const inputObj = await convertToJson(content)
+            const date = formatDate(inputObj['Date of Birth'])
+            if (date === 'Invalid date') {
+                setIsDateValid(false)
+            } else {
+                setIsDateValid(true)
+            }
+            setInputObj(inputObj)
+
+            if(inputObj['First Name']==='[Enter First Name]' || inputObj['First Name']?.length === 0){
+                // alert('Enter first name')
+                setValidFirstName(false)
+            }else {
+                setValidFirstName(true)
+            }
+            if(inputObj['Middle Name'] === '[Enter Middle Name]' || inputObj['Middle Name']?.length === 0){
+                // alert('Enter middle name')
+                setValidMiddleName(false)
+            }else{
+                setValidMiddleName(true)
+            }
+        } else {
+            setIsDateValid(true)
+        }
     };
     const handleGetCroppedImages = () => {
         let croppedSignature;
@@ -76,47 +99,6 @@ const MyEditor = () => {
 
         return date.format("DDMMYYYY");
     }
-
-    // function extractDataFromHTML(htmlString) {
-    //     const parser = new DOMParser();
-    //     const doc = parser.parseFromString(htmlString, "text/html");
-    //     const data = {};
-
-    //     // Select all strong tags
-    //     const strongTags = doc.querySelectorAll("p strong");
-    //     strongTags.forEach((strongTag) => {
-    //         const fieldName = strongTag.textContent.trim(); // Get the field name from <strong>
-    //         let fieldValue = "";
-
-    //         // Iterate over the siblings
-    //         let sibling = strongTag.nextSibling;
-    //         while (sibling) {
-    //             // Stop when we encounter another <strong>
-    //             if (sibling.nodeName === "STRONG") {
-    //                 break;
-    //             }
-
-    //             // Collect text from <span> and text nodes
-    //             if (sibling.nodeType === Node.ELEMENT_NODE && sibling.matches("span, a")) {
-    //                 fieldValue += sibling.textContent.trim();
-    //                 if (sibling.nodeName === "A") {
-    //                     fieldValue += ` (${sibling.href})`; // Append the link for <a> tags
-    //                 }
-    //             } else if (sibling.nodeType === Node.TEXT_NODE) {
-    //                 fieldValue += sibling.textContent.trim();
-    //             }
-
-    //             sibling = sibling.nextSibling;
-    //         }
-
-    //         // Store in the data object
-    //         if (fieldValue) {
-    //             data[fieldName] = fieldValue;
-    //         }
-    //     });
-
-    //     return data;
-    // }
 
     function extractDataFromHTML(htmlString) {
         const parser = new DOMParser();
@@ -172,167 +154,174 @@ const MyEditor = () => {
 
     const convertToJson = async (inputText) => {
         const result = extractDataFromHTML(inputText);
-        console.log(result)
-        setResults([result])
         return result;
-        const croppedSignature = handleGetCroppedImages();
-        const resp = await fetch(croppedSignature);
-        const blob = await resp.blob();
-        const file = new File([blob], "cropped-image.png", { type: "image/jpg" });
-        const date = formatDate(result["জন্ম তারিখ"] || result["Date of Birth"]);
-        // setLoading(true);
-        const formData = new FormData();
-        formData.append(
-            "clientId",
-            clientId
-        );
-        formData.append(
-            "clientName",
-            result["একক আবেদনকারী নাম"] ||
-            result["Single Applicant Name"] ||
-            result["1st Applicant Name"]
-        );
-        formData.append(
-            "clientGender",
-            result["লিঙ্গ"] || result["Gender"]
-        );
-        formData.append(
-            "clientEmail",
-            result["ইমেইল"] || result["Email"]
-        );
-        formData.append(
-            "clientDateOfBirth",
-            date
-        );
-        formData.append(
-            "clientGuardian",
-            result["পিতার / স্বামী / সিইও এর নাম"] ||
-            result["Father's/Husband's/CEO's Name"]
-        );
-        formData.append(
-            "clientMother",
-            result["মায়ের নাম"] || result["Mother's Name"]
-        );
-        formData.append(
-            "boType",
-            result["একক আবেদনকারী নাম"] || result["Single Applicant Name"]
-                ? "single"
-                : "joint"
-        );
-        formData.append(
-            "clientAddress",
-            result["ঠিকানা"] || result["Address"]
-        );
-        formData.append(
-            "clientPostalCode",
-            result["পোস্টাল কোড"] || result["Postal Code"]
-        );
-        formData.append(
-            "clientCity",
-            result["শহর"] || result["City"]
-        );
-        formData.append(
-            "clientCountry",
-            result["দেশ"] || result["Country"]
-        );
-        formData.append(
-            "clientMobileNumber",
-            result["মোবাইল নাম্বার"] || result["Mobile Number"]
-        );
-        formData.append(
-            "clientNationality",
-            result["জাতীয়তা"] || result["Nationality"]
-        );
-        formData.append(
-            "clientNid",
-            result["জাতীয় আইডি নাম্বার"] || result["National ID Number"]
-        );
-        formData.append(
-            "clientOccupation",
-            result["পেশা"] || result["Occupation"]
-        );
-        formData.append(
-            'clientNominyPhoto',
-            result["নমিনির পাসপোর্ট সাইজ ছবিটি আপলোড করুন"] ||
-            result["Upload Passport Sized Photo of Nominee"]
-        );
-
-        formData.append(
-            'clientPhoto',
-            result["একক আবেদনকারীর পাসপোর্ট আকারের ছবি আপলোড করুন"] ||
-            result["Upload Passport Sized Photograph of Single Applicant"]
-        );
-        formData.append(
-            'clientSignature',
-            result[
-            "একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)"
-            ] ||
-            result[
-            "Upload Signature of Single Applicant (signature must match your NID card)"
-            ]
-        );
-        formData.append(
-            'clientNidPhoto',
-            result["একক আবেদনকারীর জন্য জাতীয় আইডি এর ফটোকপি আপলোড করুন"] ||
-            result["Upload Photocopy of National ID for Single Applicant"]
-        );
-        formData.append(
-            'jointApplicantName', result["Joint Applicant Name"]
-        );
-        formData.append(
-            'jointApplicantPhoto',
-            result["Upload Passport Sized Photograph of Joint Applicant"]
-        );
-        formData.append(
-            'clientBankName',
-            result["আপনার ব্যাংকের নাম"] || result["Name of your Bank"]
-        );
-        formData.append(
-            'clientBankDepositeScreenShot',
-            result["আপলোড ব্যাংক/বিকাশ/নগদ ডিপোজিট স্লিপ/স্ক্রিনশট"] ||
-            result[
-            "Upload Bank or (bKash/Rocket/Nagad) Deposit Slip/Screenshot"
-            ]
-        );
-        formData.append(
-            'clientBankAccountNumber',
-            result["ব্যাংক একাউন্ট নাম্বার"] || result["Bank Account Number"]
-        );
-        formData.append(
-            'clientBankRoutingNumber',
-            result["ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)"] ||
-            result["Routing Number (Optional)"]
-        );
-        formData.append(
-            'clientDivision', result["বিভাগ"] || result["State/Division"]
-        );
-        formData.append(
-            'jointApplicantSign',
-            result[
-            "Upload Signature of Joint Applicant (signature must match your NID card)"
-            ]
-        );
-        formData.append('signature', file)
-        formData.append('fields', JSON.stringify(result))
-
-        // try {
-        //     const { data } = await axios.post(
-        //         `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
-        //         {
-        //             headers: {
-        //                 "Content-Type": "multipart/form-data",
-        //             },
-        //         }
-        //     );
-        //     setServerResponse(data.message);
-        //     setLoading(false);
-        // } catch (err) {
-        //     console.log('my cute error ', err.response?.data?.message)
-        //     setServerResponse(err.response?.data?.message);
-        //     setLoading(false);
-        // }
-
     };
+
+    useEffect(() => {
+        const generateFolder = async () => {
+            if (Object.keys(inputObj).length > 10 && clientId.length > 3) {
+                const croppedSignature = handleGetCroppedImages();
+                const resp = await fetch(croppedSignature);
+                const blob = await resp.blob();
+                const file = new File([blob], "cropped-image.png", { type: "image/jpg" });
+                const date = formatDate(inputObj["জন্ম তারিখ"] || inputObj["Date of Birth"]);
+                setLoading(true);
+                const formData = new FormData();
+                formData.append(
+                    "clientId",
+                    clientId
+                );
+                formData.append(
+                    "clientName",
+                    inputObj["একক আবেদনকারী নাম"] ||
+                    inputObj["Single Applicant Name"] ||
+                    inputObj["1st Applicant Name"]
+                );
+                formData.append('firstName', inputObj['First Name'])
+                formData.append('middleName', inputObj['Middle Name'])
+                formData.append(
+                    "clientGender",
+                    inputObj["লিঙ্গ"] || inputObj["Gender"]
+                );
+                formData.append(
+                    "clientEmail",
+                    inputObj["ইমেইল"] || inputObj["Email"]
+                );
+                formData.append(
+                    "clientDateOfBirth",
+                    date
+                );
+                formData.append(
+                    "clientGuardian",
+                    inputObj["পিতার / স্বামী / সিইও এর নাম"] ||
+                    inputObj["Father's/Husband's/CEO's Name"]
+                );
+                formData.append(
+                    "clientMother",
+                    inputObj["মায়ের নাম"] || inputObj["Mother's Name"]
+                );
+                formData.append(
+                    "boType",
+                    inputObj["একক আবেদনকারী নাম"] || inputObj["Single Applicant Name"]
+                        ? "single"
+                        : "joint"
+                );
+                formData.append(
+                    "clientAddress",
+                    inputObj["ঠিকানা"] || inputObj["Address"]
+                );
+                formData.append(
+                    "clientPostalCode",
+                    inputObj["পোস্টাল কোড"] || inputObj["Postal Code"]
+                );
+                formData.append(
+                    "clientCity",
+                    inputObj["শহর"] || inputObj["City"]
+                );
+                formData.append(
+                    "clientCountry",
+                    inputObj["দেশ"] || inputObj["Country"]
+                );
+                formData.append(
+                    "clientMobileNumber",
+                    inputObj["মোবাইল নাম্বার"] || inputObj["Mobile Number"]
+                );
+                formData.append(
+                    "clientNationality",
+                    inputObj["জাতীয়তা"] || inputObj["Nationality"]
+                );
+                formData.append(
+                    "clientNid",
+                    inputObj["জাতীয় আইডি নাম্বার"] || inputObj["National ID Number"]
+                );
+                formData.append(
+                    "clientOccupation",
+                    inputObj["পেশা"] || inputObj["Occupation"]
+                );
+                formData.append(
+                    'clientNominyPhoto',
+                    inputObj["নমিনির পাসপোর্ট সাইজ ছবিটি আপলোড করুন"] ||
+                    inputObj["Upload Passport Sized Photo of Nominee"]
+                );
+
+                formData.append(
+                    'clientPhoto',
+                    inputObj["একক আবেদনকারীর পাসপোর্ট আকারের ছবি আপলোড করুন"] ||
+                    inputObj["Upload Passport Sized Photograph of Single Applicant"]
+                );
+                formData.append(
+                    'clientSignature',
+                    inputObj[
+                    "একক আবেদনকারীর স্বাক্ষর আপলোড করুন (স্বাক্ষরটি আপনার এনআইডি কার্ডের সাথে মিলতে হবে)"
+                    ] ||
+                    inputObj[
+                    "Upload Signature of Single Applicant (signature must match your NID card)"
+                    ]
+                );
+                formData.append(
+                    'clientNidPhoto',
+                    inputObj["একক আবেদনকারীর জন্য জাতীয় আইডি এর ফটোকপি আপলোড করুন"] ||
+                    inputObj["Upload Photocopy of National ID for Single Applicant"]
+                );
+                formData.append(
+                    'jointApplicantName', inputObj["Joint Applicant Name"]
+                );
+                formData.append(
+                    'jointApplicantPhoto',
+                    inputObj["Upload Passport Sized Photograph of Joint Applicant"]
+                );
+                formData.append(
+                    'clientBankName',
+                    inputObj["আপনার ব্যাংকের নাম"] || inputObj["Name of your Bank"]
+                );
+                formData.append(
+                    'clientBankDepositeScreenShot',
+                    inputObj["আপলোড ব্যাংক/বিকাশ/নগদ ডিপোজিট স্লিপ/স্ক্রিনশট"] ||
+                    inputObj[
+                    "Upload Bank or (bKash/Rocket/Nagad) Deposit Slip/Screenshot"
+                    ]
+                );
+                formData.append(
+                    'clientBankAccountNumber',
+                    inputObj["ব্যাংক একাউন্ট নাম্বার"] || inputObj["Bank Account Number"]
+                );
+                formData.append(
+                    'clientBankRoutingNumber',
+                    inputObj["ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)"] ||
+                    inputObj["Routing Number (Optional)"]
+                );
+                formData.append(
+                    'clientDivision', inputObj["বিভাগ"] || inputObj["State/Division"]
+                );
+                formData.append(
+                    'jointApplicantSign',
+                    inputObj[
+                    "Upload Signature of Joint Applicant (signature must match your NID card)"
+                    ]
+                );
+                formData.append('signature', file)
+                formData.append('fields', JSON.stringify(inputObj))
+
+                try {
+                    const { data } = await axios.post(
+                        `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
+                        {
+                            headers: {
+                                "Content-Type": "multipart/form-data",
+                            },
+                        }
+                    );
+                    setServerResponse(data.message);
+                    setLoading(false);
+                } catch (err) {
+                    console.log('my cute error ', err.response?.data?.message)
+                    setServerResponse(err.response?.data?.message);
+                    setLoading(false);
+                }
+            }
+        }
+        generateFolder()
+    }, [JSON.stringify(inputObj).length, clientId])
 
     useEffect(() => {
         if (isSubmitButtonClicked) {
@@ -348,10 +337,12 @@ const MyEditor = () => {
         return setClientId("");
     }, [clientId]);
     useEffect(() => {
-        if (inputText) {
-            convertToJson()
+        const convert = async () => {
+            if (inputText) {
+                console.log(await convertToJson())
+            }
         }
-
+        convert()
     }, [inputText])
 
     useEffect(() => {
@@ -368,22 +359,10 @@ const MyEditor = () => {
                         setIsDateValid(true)
                         setWarnings({ ...warnings, dob: '' })
                     }
-
-                    // if(results[0]&&results[0]['Date of Birth']?.includes['.']){
-                    //     setWarnings(prev => {
-                    //         return {
-                    //             ...prev,
-                    //             dob:'Invalid date of birth. please make this correct.'
-                    //         }
-                    //     })
-                    // }
                 }
             }, 1000);
         }
-        // return () => {
-        //     setWarnings({ dob: '' });
-        //     console.log('Hello world')
-        // }
+
     }, [inputText])
     useEffect(() => {
         if (Object.keys(clientInfos).length > 1) {
@@ -409,10 +388,6 @@ const MyEditor = () => {
         cropperRefs.current = [];
     }, []);
 
-
-    // const handleEditorChange = (content) => {
-    //     setInputText(content);
-    // };
     useEffect(() => {
         let timer;
         if (inputText) {
@@ -444,16 +419,11 @@ const MyEditor = () => {
         <span class="custom-field" contenteditable="true" data-field="middleName">[Enter Middle Name]</span><br>
     `;
 
-    // const handleEditorChange = (content) => {
-    //     // Handle editor content changes if needed
-    // };
-
     const handlePaste = () => {
         if (!editorRef.current) return;
 
         setTimeout(() => {
             const content = editorRef.current.getContent();
-            console.log(content.includes('একক আবেদনকারী নাম'))
             let regex;
             if (content.includes('একক আবেদনকারী নাম')) {
                 regex = /(<p><strong>একক আবেদনকারী নাম<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/;
@@ -614,9 +584,9 @@ const MyEditor = () => {
                                 <div className="text-red-500">
                                     {serverResponse?.length > 0 ? <p>{serverResponse}</p> : ""}
                                 </div>
-                                {warnings.dob ? warnings.dob : ''}
+                                {!isDateValid ? 'Invalid date format' : ''}
                                 <div className="flex justify-center gap-4 items-center">
-                                    {isDateValid && (
+                                    {isDateValid && validFirstName && validMiddleName && inputText?.length>150 && (
                                         <button
                                             disabled={warnings.dob.length > 0 ? true : false}
                                             type="submit"
