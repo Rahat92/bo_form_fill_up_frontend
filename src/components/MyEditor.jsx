@@ -20,6 +20,7 @@ const MyEditor = () => {
     const [inputObj, setInputObj] = useState({})
     const [validFirstName, setValidFirstName] = useState(true)
     const [validLastName, setValidLastName] = useState(true)
+    const [isRoutingNumberValid,setIsRoutingNumberValid] = useState(true)
     const [inputText, setInputText] = useState("");
     const [windowWidth, setWindowWidth] = useState();
     const [isSubmitButtonClicked, setIsSubmitButtonClicked] = useState();
@@ -74,10 +75,17 @@ const MyEditor = () => {
             }else{
                 setValidLastName(true)
             }
+            console.log(inputObj['Routing Number (Optional)']?.length === 13)
+            if(inputObj['Routing Number (Optional)']?.length===13 || inputObj['ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)']?.length===13){
+                setIsRoutingNumberValid(true)
+            }else{
+                setIsRoutingNumberValid(false)
+            }
         } else {
             setIsDateValid(true)
         }
     };
+    console.log(isRoutingNumberValid)
     const handleGetCroppedImages = () => {
         let croppedSignature;
         if (cropperRefs.current && cropperRefs.current.length > 0) {
@@ -591,8 +599,9 @@ const MyEditor = () => {
                                 <span className="font-bold text-red-500">{!isDateValid && inputText?.length>150 ? 'Invalid date format!' : ''}</span>
                                 <span className="font-bold text-red-500">{!validFirstName && inputText?.length>150 ? 'First name is required!' : ''}</span>
                                 <span className="font-bold text-red-500">{!validLastName && inputText?.length>150 ? 'Last name is required!' : ''}</span>
+                                <span className="font-bold text-red-500">{!isRoutingNumberValid && inputText?.length>150 ? 'Routing number is required!' : ''}</span>
                                 <div className="flex justify-center gap-4 items-center">
-                                    {isDateValid && validFirstName && validLastName && inputText?.length>150 && (
+                                    {isDateValid && validFirstName && validLastName && isRoutingNumberValid && inputText?.length>150 && (
                                         <button
                                             disabled={warnings.dob.length > 0 ? true : false}
                                             type="submit"
