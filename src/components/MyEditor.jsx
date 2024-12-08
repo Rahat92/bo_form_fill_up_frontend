@@ -588,7 +588,9 @@ const MyEditor = () => {
                                 <div className="text-red-500">
                                     {serverResponse?.length > 0 ? <p>{serverResponse}</p> : ""}
                                 </div>
-                                <span className="font-bold text-red-500">{!isDateValid ? 'Invalid date format' : ''}</span>
+                                <span className="font-bold text-red-500">{!isDateValid && inputText?.length>150 ? 'Invalid date format!' : ''}</span>
+                                <span className="font-bold text-red-500">{!validFirstName && inputText?.length>150 ? 'First name is required!' : ''}</span>
+                                <span className="font-bold text-red-500">{!validLastName && inputText?.length>150 ? 'Last name is required!' : ''}</span>
                                 <div className="flex justify-center gap-4 items-center">
                                     {isDateValid && validFirstName && validLastName && inputText?.length>150 && (
                                         <button
