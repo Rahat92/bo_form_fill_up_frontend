@@ -19,8 +19,7 @@ import axios from "axios";
 const MyEditor = () => {
     const [inputObj, setInputObj] = useState({})
     const [validFirstName, setValidFirstName] = useState(true)
-    const [validMiddleName, setValidMiddleName] = useState(true)
-    const [typing, setTyping] = useState(false)
+    const [validLastName, setValidLastName] = useState(true)
     const [inputText, setInputText] = useState("");
     const [windowWidth, setWindowWidth] = useState();
     const [isSubmitButtonClicked, setIsSubmitButtonClicked] = useState();
@@ -69,11 +68,11 @@ const MyEditor = () => {
             }else {
                 setValidFirstName(true)
             }
-            if(inputObj['Middle Name'] === '[Enter Middle Name]' || inputObj['Middle Name']?.length === 0){
+            if(inputObj['Last Name'] === '[Enter Last Name]' || inputObj['Last Name']?.length === 0){
                 // alert('Enter middle name')
-                setValidMiddleName(false)
+                setValidLastName(false)
             }else{
-                setValidMiddleName(true)
+                setValidLastName(true)
             }
         } else {
             setIsDateValid(true)
@@ -178,7 +177,8 @@ const MyEditor = () => {
                     inputObj["1st Applicant Name"]
                 );
                 formData.append('firstName', inputObj['First Name'])
-                formData.append('middleName', inputObj['Middle Name'])
+                formData.append('middleName', inputObj['Middle Name'] === '[Enter Middle Name]'?'':inputObj['Middle Name'])
+                formData.append('lastName', inputObj['Last Name'])
                 formData.append(
                     "clientGender",
                     inputObj["লিঙ্গ"] || inputObj["Gender"]
@@ -344,7 +344,7 @@ const MyEditor = () => {
         }
         convert()
     }, [inputText])
-
+    console.log(inputObj)
     useEffect(() => {
         if (inputText) {
             setTimeout(() => {
@@ -416,7 +416,11 @@ const MyEditor = () => {
         <span class="custom-field" contenteditable="true" data-field="firstName">[Enter First Name]</span><br><br>
         <br>
         <strong>Middle Name</strong><br>
-        <span class="custom-field" contenteditable="true" data-field="middleName">[Enter Middle Name]</span><br>
+        <span class="custom-field" contenteditable="true" data-field="middleName">[Enter Middle Name]</span><br><br>
+
+        <br>
+        <strong>Last Name</strong><br>
+        <span class="custom-field" contenteditable="true" data-field="lastName">[Enter Last Name]</span><br>
     `;
 
     const handlePaste = () => {
@@ -448,7 +452,7 @@ const MyEditor = () => {
             if (field.textContent.trim() === "") {
                 field.textContent = field.dataset.field === "firstName"
                     ? "[Enter First Name]"
-                    : "[Enter Middle Name]";
+                    :field.textContent = field.dataset.field === "middleName"? "[Enter Middle Name]":"[Enter Last Name]";
             }
         });
 
@@ -586,7 +590,7 @@ const MyEditor = () => {
                                 </div>
                                 {!isDateValid ? 'Invalid date format' : ''}
                                 <div className="flex justify-center gap-4 items-center">
-                                    {isDateValid && validFirstName && validMiddleName && inputText?.length>150 && (
+                                    {isDateValid && validFirstName && validLastName && inputText?.length>150 && (
                                         <button
                                             disabled={warnings.dob.length > 0 ? true : false}
                                             type="submit"
@@ -599,7 +603,7 @@ const MyEditor = () => {
                                     <button className="border rounded-sm p-2" onClick={async () => {
                                         const folderName = localStorage.getItem('clientId')
                                         await axios.get(`http://${process.env.REACT_APP_IP}:3001/open-folder/${folderName}`)
-                                    }}>Open BO</button>
+                                    }}>Open</button>
                                 </div>
                             </div>
                         </div>
