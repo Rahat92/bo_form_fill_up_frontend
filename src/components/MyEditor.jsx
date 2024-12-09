@@ -150,8 +150,8 @@ const MyEditor = () => {
 
     const onRotate = (direction) => () => {
         const angleConfig = {
-            left: -10,
-            right: 10,
+            left: -5,
+            right: 5,
         };
         const angle = angleConfig[direction] || 0;
         cropperRefs.current &&
@@ -287,7 +287,7 @@ const MyEditor = () => {
                     inputObj["আপলোড ব্যাংক/বিকাশ/নগদ ডিপোজিট স্লিপ/স্ক্রিনশট"] ||
                     inputObj[
                     "Upload Bank or (bKash/Rocket/Nagad) Deposit Slip/Screenshot"
-                    ]
+                    ] || inputObj['Upload Bank/bKash/Rocket/Nagad Deposit/Screenshot Slip']
                 );
                 formData.append(
                     'clientBankAccountNumber',
@@ -305,6 +305,12 @@ const MyEditor = () => {
                     'jointApplicantSign',
                     inputObj[
                     "Upload Signature of Joint Applicant (signature must match your NID card)"
+                    ]
+                );
+                formData.append(
+                    'jointApplicantNidPhoto',
+                    inputObj[
+                    "Upload Photocopy of National ID for Joint Applicant"
                     ]
                 );
                 formData.append('signature', file)
@@ -388,6 +394,10 @@ const MyEditor = () => {
                     clientInfos[
                     "Upload Signature of Single Applicant (signature must match your NID card)"
                     ],
+                clientPhoto4:
+                    clientInfos[
+                    "Upload Photocopy of National ID for Joint Applicant"
+                    ]
             });
         }
     }, [clientInfos]);
@@ -431,7 +441,20 @@ const MyEditor = () => {
         <span class="custom-field" contenteditable="true" data-field="lastName">[Enter Last Name]</span><br>
     `;
 
-    const handlePaste = () => {
+    const additionalFieldsForJoint = `
+        <br><br>
+        <strong>Joint First Name</strong><br>
+        <span class="joint-custom-field" contenteditable="true" data-field="joint-firstName">[Enter Joint First Name]</span><br><br>
+        <br>
+        <strong>Joint Middle Name</strong><br>
+        <span class="joint-custom-field" contenteditable="true" data-field="joint-middleName">[Enter Joint Middle Name]</span><br><br>
+
+        <br>
+        <strong>Joint Last Name</strong><br>
+        <span class="joint-custom-field" contenteditable="true" data-field="joint-lastName">[Enter Joint Last Name]</span><br>
+    `;
+
+    const handlePasteClint = () => {
         if (!editorRef.current) return;
 
         setTimeout(() => {
@@ -453,6 +476,25 @@ const MyEditor = () => {
         }, 0);
     };
 
+    const handlePasteJoint = () => {
+
+        if (!editorRef.current) return;
+        setTimeout(() => {
+            const content = editorRef.current.getContent();
+            let regex;
+            console.log(content.includes('Joint Applicant Name'))
+            if (content.includes('Joint Applicant Name')) {
+                regex = /(<p><strong>Joint Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>Joint First Name<\/strong>)/;
+            }
+
+            // Ensure the placeholders are not duplicated
+            if (regex.test(content) && !content.includes("Joint First Name")) {
+                const updatedContent = content.replace(regex, `$1${additionalFieldsForJoint}`);
+                editorRef.current.setContent(updatedContent);
+            }
+        }, 0);
+    };
+
     const sanitizePlaceholders = (content) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(content, "text/html");
@@ -463,6 +505,21 @@ const MyEditor = () => {
                 field.textContent = field.dataset.field === "firstName"
                     ? "[Enter First Name]"
                     :field.textContent = field.dataset.field === "middleName"? "[Enter Middle Name]":"[Enter Last Name]";
+            }
+        });
+
+        return doc.body.innerHTML;
+    };
+    const sanitizePlaceholdersForJoint = (content) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, "text/html");
+        const fields = doc.querySelectorAll(".joint-custom-field");
+
+        fields.forEach((field) => {
+            if (field.textContent.trim() === "") {
+                field.textContent = field.dataset.field === "joint-firstName"
+                    ? "[Enter Joint First Name]"
+                    :field.textContent = field.dataset.field === "joint-middleName"? "[Enter Joint Middle Name]":"[Enter Joint Last Name]";
             }
         });
 
@@ -562,14 +619,19 @@ const MyEditor = () => {
 
                                         // Add paste event listener
                                         editor.on("paste", () => {
-                                            handlePaste();
-
+                                            handlePasteClint();
+                                            handlePasteJoint();
                                             // Sanitize placeholders after paste
                                             setTimeout(() => {
                                                 const sanitizedContent = sanitizePlaceholders(
                                                     editor.getContent()
                                                 );
                                                 editor.setContent(sanitizedContent);
+
+                                                const sanitizedContentForJoint = sanitizePlaceholdersForJoint(
+                                                    editor.getContent()
+                                                );
+                                                editor.setContent(sanitizedContentForJoint);
                                             }, 0);
                                         });
 
@@ -577,6 +639,9 @@ const MyEditor = () => {
                                         editor.on("init", () => {
                                             const sanitizedContent = sanitizePlaceholders(editor.getContent());
                                             editor.setContent(sanitizedContent);
+
+                                            const sanitizedContentForJoint = sanitizePlaceholdersForJoint(editor.getContent());
+                                            editor.setContent(sanitizedContentForJoint);
                                         });
                                     },
                                 }}
