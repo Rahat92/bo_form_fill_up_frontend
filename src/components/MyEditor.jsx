@@ -75,8 +75,8 @@ const MyEditor = () => {
             }else{
                 setValidLastName(true)
             }
-            console.log(inputObj['Routing Number (Optional)']?.length === 13)
-            if(inputObj['Routing Number (Optional)']?.length===13 || inputObj['ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)']?.length===13){
+            console.log(inputObj['Routing Number (Optional)']?.length === 9)
+            if(inputObj['Routing Number (Optional)']?.length===9 || inputObj['ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)']?.length===9){
                 setIsRoutingNumberValid(true)
             }else{
                 setIsRoutingNumberValid(false)
