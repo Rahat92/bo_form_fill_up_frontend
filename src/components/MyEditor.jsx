@@ -439,8 +439,10 @@ const MyEditor = () => {
             let regex;
             if (content.includes('একক আবেদনকারী নাম')) {
                 regex = /(<p><strong>একক আবেদনকারী নাম<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/;
-            } else {
+            } else if(content.includes('Single Applicant Name')) {
                 regex = /(<p><strong>Single Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/
+            } else if(content.includes('1st Applicant Name')){
+                regex = /(<p><strong>1st Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/
             }
 
             // Ensure the placeholders are not duplicated
