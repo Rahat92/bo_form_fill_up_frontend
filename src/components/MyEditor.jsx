@@ -55,8 +55,9 @@ const MyEditor = () => {
         if (content.length > 150) {
             setInputText(content);
             const inputObj = await convertToJson(content)
-            const date = formatDate(inputObj['Date of Birth']) || formatDate(inputObj['জন্ম তারিখ'])
-            if (date === 'Invalid date') {
+            const date = formatDate(inputObj['জন্ম তারিখ'])!=='Invalid date' || formatDate(inputObj['Date of Birth'])!=='Invalid date'
+            console.log(date)
+            if (!date) {
                 setIsDateValid(false)
             } else {
                 setIsDateValid(true)
@@ -364,7 +365,7 @@ const MyEditor = () => {
             setTimeout(() => {
                 if (results.length > 0 && JSON.stringify(results[0]).length > 150) {
 
-                    const date = formatDate(results[0]["জন্ম তারিখ"] || results[0]["Date of Birth"]);
+                    const date = formatDate(results[0]["জন্ম তারিখ"]) || formatDate(results[0]["Date of Birth"]);
                     // setLoading(true);
                     if (date === 'Invalid date') {
                         setIsDateValid(false)
@@ -469,7 +470,7 @@ const MyEditor = () => {
             }
 
             // Ensure the placeholders are not duplicated
-            if (regex.test(content) && !content.includes("First Name")) {
+            if (regex?.test(content) && !content.includes("First Name")) {
                 const updatedContent = content.replace(regex, `$1${additionalFields}`);
                 editorRef.current.setContent(updatedContent);
             }
@@ -482,13 +483,12 @@ const MyEditor = () => {
         setTimeout(() => {
             const content = editorRef.current.getContent();
             let regex;
-            console.log(content.includes('Joint Applicant Name'))
             if (content.includes('Joint Applicant Name')) {
                 regex = /(<p><strong>Joint Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>Joint First Name<\/strong>)/;
             }
 
             // Ensure the placeholders are not duplicated
-            if (regex.test(content) && !content.includes("Joint First Name")) {
+            if (regex?.test(content) && !content.includes("Joint First Name")) {
                 const updatedContent = content.replace(regex, `$1${additionalFieldsForJoint}`);
                 editorRef.current.setContent(updatedContent);
             }
@@ -700,9 +700,8 @@ const MyEditor = () => {
                                             <Cropper
                                                 src={finalItem.img}
                                                 style={{ height: 200, width: 250 }}
-                                                // initialAspectRatio={16 / 9}
                                                 initialAspectRatio={300 / 80}
-                                                guides={false}
+                                                guides={true}
                                                 ref={(cropper) => {
                                                     if (cropper && !isReady.has(index)) {
                                                         cropperRefs.current[index] = cropper;
