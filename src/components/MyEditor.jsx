@@ -55,7 +55,7 @@ const MyEditor = () => {
         if (content.length > 150) {
             setInputText(content);
             const inputObj = await convertToJson(content)
-            const date = formatDate(inputObj['Date of Birth'])
+            const date = formatDate(inputObj['Date of Birth']) || formatDate(inputObj['জন্ম তারিখ'])
             if (date === 'Invalid date') {
                 setIsDateValid(false)
             } else {
