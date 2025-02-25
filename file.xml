@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+-<Log xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:noNamespaceSchemaLocation="Flextrade-BOS-Control.xsd">
+-    <Summary>
+        <FileType>Positions</FileType>
+        <FileStatus>ProcessedWithDataError</FileStatus>
+        <ProcessingMode>BatchInsertOrUpdate</ProcessingMode>
+        <DateProcessed>2025-02-20</DateProcessed>
+        <TotalDuration>00:00:11.4844605</TotalDuration>
+        <Record>49708</Record>
+        <Successful>49631</Successful>
+        <Wrong>77</Wrong>
+    </Summary>
+-    <ErrorLog>
+        <Data_Error errCode="303" lineNum="35144" colNum="0" errText="Invalid Seccode TB5Y1228.AT" />
+        <Data_Error errCode="303" lineNum="35234" colNum="0" errText="Invalid Seccode TB5Y1228.AT" />
+        <Data_Error errCode="303" lineNum="35948" colNum="0" errText="Invalid Seccode TB02Y1126.AT" />
+        <Data_Error errCode="303" lineNum="36020" colNum="0" errText="Invalid Seccode TB5Y1228.AT" />
+        <Data_Error errCode="303" lineNum="46412" colNum="0" errText="Invalid Seccode TB05Y1029.AT" />
+        <Data_Error errCode="303" lineNum="54890" colNum="0" errText="Invalid Seccode TB05Y1029.AT" />
+        <Data_Error errCode="303" lineNum="79352" colNum="0" errText="Invalid Seccode TB10Y0434.AT" />
+        <Data_Error errCode="303" lineNum="98006" colNum="0" errText="Invalid Seccode TB10Y0434.AT" />
+        <Data_Error errCode="303" lineNum="98324" colNum="0" errText="Invalid Seccode TB10Y0634.AT" />
+        <Data_Error errCode="303" lineNum="116528" colNum="0" errText="Invalid Seccode IFICGSTGZ1.AT" />
+        <Data_Error errCode="303" lineNum="126116" colNum="0" errText="Invalid Seccode BEX1STZCB1.AT" />
+        <Data_Error errCode="303" lineNum="135494" colNum="0" errText="Invalid Seccode TB05Y1029.AT" />
+        <Data_Error errCode="303" lineNum="149696" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="169706" colNum="0" errText="Invalid Seccode UCBIPUF.AT" />
+        <Data_Error errCode="303" lineNum="173690" colNum="0" errText="Invalid Seccode TB020127.AT" />
+        <Data_Error errCode="303" lineNum="176204" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="176210" colNum="0" errText="Invalid Seccode TB10Y0434.AT" />
+        <Data_Error errCode="303" lineNum="176216" colNum="0" errText="Invalid Seccode TB20Y0143.AT" />
+        <Data_Error errCode="303" lineNum="176222" colNum="0" errText="Invalid Seccode TB20Y0744.AT" />
+        <Data_Error errCode="303" lineNum="176228" colNum="0" errText="Invalid Seccode TB2Y0426.AT" />
+        <Data_Error errCode="303" lineNum="176234" colNum="0" errText="Invalid Seccode TB2Y0526.AT" />
+        <Data_Error errCode="303" lineNum="176780" colNum="0" errText="Invalid Seccode TB020127.AT" />
+        <Data_Error errCode="303" lineNum="178850" colNum="0" errText="Invalid Seccode BEX1STZCB1.AT" />
+        <Data_Error errCode="303" lineNum="178868" colNum="0" errText="Invalid Seccode IFICGSTGZ2.AT" />
+        <Data_Error errCode="303" lineNum="178892" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="178898" colNum="0" errText="Invalid Seccode TB5Y0429.AT" />
+        <Data_Error errCode="303" lineNum="183440" colNum="0" errText="Invalid Seccode TB05Y1029.AT" />
+        <Data_Error errCode="303" lineNum="183446" colNum="0" errText="Invalid Seccode TB10Y0135.AT" />
+        <Data_Error errCode="303" lineNum="183452" colNum="0" errText="Invalid Seccode TB10Y0234.AT" />
+        <Data_Error errCode="303" lineNum="183458" colNum="0" errText="Invalid Seccode TB15Y0339.AT" />
+        <Data_Error errCode="303" lineNum="183464" colNum="0" errText="Invalid Seccode TB20Y0744.AT" />
+        <Data_Error errCode="303" lineNum="187286" colNum="0" errText="Invalid Seccode IFICGSTGZ1.AT" />
+        <Data_Error errCode="303" lineNum="190088" colNum="0" errText="Invalid Seccode TB5Y1228.AT" />
+        <Data_Error errCode="303" lineNum="191684" colNum="0" errText="Invalid Seccode TB20Y0143.AT" />
+        <Data_Error errCode="303" lineNum="191690" colNum="0" errText="Invalid Seccode TB20Y0744.AT" />
+        <Data_Error errCode="303" lineNum="192836" colNum="0" errText="Invalid Seccode BEX1STZCB5.AT" />
+        <Data_Error errCode="303" lineNum="193784" colNum="0" errText="Invalid Seccode TB02Y1126.AT" />
+        <Data_Error errCode="303" lineNum="197336" colNum="0" errText="Invalid Seccode TB10Y0135.AT" />
+        <Data_Error errCode="303" lineNum="197342" colNum="0" errText="Invalid Seccode TB10Y0234.AT" />
+        <Data_Error errCode="303" lineNum="198272" colNum="0" errText="Invalid Seccode TB15Y0339.AT" />
+        <Data_Error errCode="303" lineNum="198680" colNum="0" errText="Invalid Seccode TB05Y1229.AT" />
+        <Data_Error errCode="303" lineNum="210182" colNum="0" errText="Invalid Seccode CWTCBSF.AT" />
+        <Data_Error errCode="303" lineNum="213104" colNum="0" errText="Invalid Seccode TB10Y0434.AT" />
+        <Data_Error errCode="303" lineNum="213110" colNum="0" errText="Invalid Seccode TB15Y0339.AT" />
+        <Data_Error errCode="303" lineNum="213116" colNum="0" errText="Invalid Seccode TB5Y1228.AT" />
+        <Data_Error errCode="303" lineNum="225584" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="225590" colNum="0" errText="Invalid Seccode TB5Y0429.AT" />
+        <Data_Error errCode="303" lineNum="230924" colNum="0" errText="Invalid Seccode UCBIPUF.AT" />
+        <Data_Error errCode="303" lineNum="233558" colNum="0" errText="Invalid Seccode IFICGSTGZ1.AT" />
+        <Data_Error errCode="303" lineNum="237626" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="237632" colNum="0" errText="Invalid Seccode TB05Y1229.AT" />
+        <Data_Error errCode="303" lineNum="237638" colNum="0" errText="Invalid Seccode TB5Y0429.AT" />
+        <Data_Error errCode="303" lineNum="247304" colNum="0" errText="Invalid Seccode TB02Y0626.AT" />
+        <Data_Error errCode="303" lineNum="253022" colNum="0" errText="Invalid Seccode TB02Y1126.AT" />
+        <Data_Error errCode="303" lineNum="253028" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="253094" colNum="0" errText="Invalid Seccode TB5Y0429.AT" />
+        <Data_Error errCode="303" lineNum="255464" colNum="0" errText="Invalid Seccode UCBIPUF.AT" />
+        <Data_Error errCode="303" lineNum="256928" colNum="0" errText="Invalid Seccode TB20Y0744.AT" />
+        <Data_Error errCode="303" lineNum="256934" colNum="0" errText="Invalid Seccode TB2Y0526.AT" />
+        <Data_Error errCode="303" lineNum="258440" colNum="0" errText="Invalid Seccode TB5Y0429.AT" />
+        <Data_Error errCode="303" lineNum="260402" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="260408" colNum="0" errText="Invalid Seccode TB10Y0434.AT" />
+        <Data_Error errCode="303" lineNum="261806" colNum="0" errText="Invalid Seccode TB02Y1126.AT" />
+        <Data_Error errCode="303" lineNum="262364" colNum="0" errText="Invalid Seccode TB02Y1126.AT" />
+        <Data_Error errCode="303" lineNum="262370" colNum="0" errText="Invalid Seccode TB05Y1229.AT" />
+        <Data_Error errCode="303" lineNum="262376" colNum="0" errText="Invalid Seccode TB10Y0833.AT" />
+        <Data_Error errCode="303" lineNum="263348" colNum="0" errText="Invalid Seccode TB02Y1126.AT" />
+        <Data_Error errCode="303" lineNum="263354" colNum="0" errText="Invalid Seccode TB2Y0526.AT" />
+        <Data_Error errCode="303" lineNum="265676" colNum="0" errText="Invalid Seccode TB20Y0143.AT" />
+        <Data_Error errCode="303" lineNum="269864" colNum="0" errText="Invalid Seccode TB02Y0626.AT" />
+        <Data_Error errCode="303" lineNum="271076" colNum="0" errText="Invalid Seccode TB02Y1126.AT" />
+        <Data_Error errCode="303" lineNum="273944" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="273950" colNum="0" errText="Invalid Seccode TB15Y0339.AT" />
+        <Data_Error errCode="303" lineNum="273998" colNum="0" errText="Invalid Seccode TB05Y0529.AT" />
+        <Data_Error errCode="303" lineNum="275114" colNum="0" errText="Invalid Seccode TB02Y0826.AT" />
+        <Data_Error errCode="303" lineNum="275630" colNum="0" errText="Invalid Seccode TB02Y1126.AT" />
+        <Data_Error errCode="303" lineNum="284486" colNum="0" errText="Invalid Seccode BEX1STZCB1.AT" />
+    </ErrorLog>
+</Log>

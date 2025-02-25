@@ -20,7 +20,8 @@ const MyEditor = () => {
     const [inputObj, setInputObj] = useState({})
     const [validFirstName, setValidFirstName] = useState(true)
     const [validLastName, setValidLastName] = useState(true)
-    const [isRoutingNumberValid,setIsRoutingNumberValid] = useState(true)
+    const [validAddress, setValidAddress] = useState(true)
+    const [isRoutingNumberValid, setIsRoutingNumberValid] = useState(true)
     const [inputText, setInputText] = useState("");
     const [windowWidth, setWindowWidth] = useState();
     const [isSubmitButtonClicked, setIsSubmitButtonClicked] = useState();
@@ -36,7 +37,8 @@ const MyEditor = () => {
     const [warnings, setWarnings] = useState({
         dob: '',
         firstName: '',
-        middleName: ''
+        middleName: '',
+        address: ''
     })
     const [isDateValid, setIsDateValid] = useState(true)
     const [results, setResults] = useState([])
@@ -51,11 +53,12 @@ const MyEditor = () => {
         setRenderCount(prev => prev + 1)
     }, [])
     const handleEditorChange = async (content) => {
-        console.log(content.length)
+
+        console.log(inputObj)
         if (content.length > 150) {
             setInputText(content);
             const inputObj = await convertToJson(content)
-            const date = formatDate(inputObj['জন্ম তারিখ'])!=='Invalid date' || formatDate(inputObj['Date of Birth'])!=='Invalid date'
+            const date = formatDate(inputObj['জন্ম তারিখ']) !== 'Invalid date' || formatDate(inputObj['Date of Birth']) !== 'Invalid date'
             console.log(date)
             if (!date) {
                 setIsDateValid(false)
@@ -64,22 +67,28 @@ const MyEditor = () => {
             }
             setInputObj(inputObj)
 
-            if(inputObj['First Name']==='[Enter First Name]' || inputObj['First Name']?.length === 0){
+            if (inputObj['First Name'] === '[Enter First Name]' || inputObj['First Name']?.length === 0) {
                 // alert('Enter first name')
                 setValidFirstName(false)
-            }else {
+            } else {
                 setValidFirstName(true)
             }
-            if(inputObj['Last Name'] === '[Enter Last Name]' || inputObj['Last Name']?.length === 0){
+            if (inputObj['Last Name'] === '[Enter Last Name]' || inputObj['Last Name']?.length === 0) {
                 // alert('Enter middle name')
                 setValidLastName(false)
-            }else{
+            } else {
                 setValidLastName(true)
             }
+            if (inputObj['Address'] && (inputObj['Address']?.length === 0||inputObj['Address']?.length>90)) {
+                // alert('Enter middle name')
+                setValidAddress(false)
+            } else {
+                setValidAddress(true)
+            }
             console.log(inputObj['Routing Number (Optional)']?.length === 9)
-            if(inputObj['Routing Number (Optional)']?.length===9 || inputObj['ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)']?.length===9){
+            if (inputObj['Routing Number (Optional)']?.length === 9 || inputObj['ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)']?.length === 9) {
                 setIsRoutingNumberValid(true)
-            }else{
+            } else {
                 setIsRoutingNumberValid(false)
             }
         } else {
@@ -99,6 +108,7 @@ const MyEditor = () => {
         }
         return croppedSignature;
     };
+
     function formatDate(dateStr) {
         let date = moment(dateStr, ["DD/MM/YYYY", "DD-MMM-YYYY"]);
         if (!date.isValid()) {
@@ -186,7 +196,7 @@ const MyEditor = () => {
                     inputObj["1st Applicant Name"]
                 );
                 formData.append('firstName', inputObj['First Name'])
-                formData.append('middleName', inputObj['Middle Name'] === '[Enter Middle Name]'?'':inputObj['Middle Name'])
+                formData.append('middleName', inputObj['Middle Name'] === '[Enter Middle Name]' ? '' : inputObj['Middle Name'])
                 formData.append('lastName', inputObj['Last Name'])
                 formData.append(
                     "clientGender",
@@ -341,7 +351,9 @@ const MyEditor = () => {
     useEffect(() => {
         if (isSubmitButtonClicked) {
             const clientId = prompt("Add client Id.");
-            setClientId(clientId);
+            if (clientId) {
+                setClientId(clientId);
+            }
         }
         return () => setIsSubmitButtonClicked(false);
     }, [isSubmitButtonClicked]);
@@ -364,9 +376,7 @@ const MyEditor = () => {
         if (inputText) {
             setTimeout(() => {
                 if (results.length > 0 && JSON.stringify(results[0]).length > 150) {
-
                     const date = formatDate(results[0]["জন্ম তারিখ"]) || formatDate(results[0]["Date of Birth"]);
-                    // setLoading(true);
                     if (date === 'Invalid date') {
                         setIsDateValid(false)
                         setWarnings({ ...warnings, dob: 'Invalid Date of Birth.' })
@@ -463,9 +473,9 @@ const MyEditor = () => {
             let regex;
             if (content.includes('একক আবেদনকারী নাম')) {
                 regex = /(<p><strong>একক আবেদনকারী নাম<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/;
-            } else if(content.includes('Single Applicant Name')) {
+            } else if (content.includes('Single Applicant Name')) {
                 regex = /(<p><strong>Single Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/
-            } else if(content.includes('1st Applicant Name')){
+            } else if (content.includes('1st Applicant Name')) {
                 regex = /(<p><strong>1st Applicant Name<\/strong><br>.*?<br>)(?!.*<strong>First Name<\/strong>)/
             }
 
@@ -504,7 +514,7 @@ const MyEditor = () => {
             if (field.textContent.trim() === "") {
                 field.textContent = field.dataset.field === "firstName"
                     ? "[Enter First Name]"
-                    :field.textContent = field.dataset.field === "middleName"? "[Enter Middle Name]":"[Enter Last Name]";
+                    : field.textContent = field.dataset.field === "middleName" ? "[Enter Middle Name]" : "[Enter Last Name]";
             }
         });
 
@@ -519,7 +529,7 @@ const MyEditor = () => {
             if (field.textContent.trim() === "") {
                 field.textContent = field.dataset.field === "joint-firstName"
                     ? "[Enter Joint First Name]"
-                    :field.textContent = field.dataset.field === "joint-middleName"? "[Enter Joint Middle Name]":"[Enter Joint Last Name]";
+                    : field.textContent = field.dataset.field === "joint-middleName" ? "[Enter Joint Middle Name]" : "[Enter Joint Last Name]";
             }
         });
 
@@ -663,12 +673,13 @@ const MyEditor = () => {
                                 <div className="text-red-500">
                                     {serverResponse?.length > 0 ? <p>{serverResponse}</p> : ""}
                                 </div>
-                                <span className="font-bold text-red-500">{!isDateValid && inputText?.length>150 ? 'Invalid date format!' : ''}</span>
-                                <span className="font-bold text-red-500">{!validFirstName && inputText?.length>150 ? 'First name is required!' : ''}</span>
-                                <span className="font-bold text-red-500">{!validLastName && inputText?.length>150 ? 'Last name is required!' : ''}</span>
-                                <span className="font-bold text-red-500">{!isRoutingNumberValid && inputText?.length>150 ? 'Routing number is required!' : ''}</span>
+                                <span className="font-bold text-red-500">{!isDateValid && inputText?.length > 150 ? 'Invalid date format!' : ''}</span>
+                                <span className="font-bold text-red-500">{!validFirstName && inputText?.length > 150 ? 'First name is required!' : ''}</span>
+                                <span className="font-bold text-red-500">{!validLastName && inputText?.length > 150 ? 'Last name is required!' : ''}</span>
+                                <span className="font-bold text-red-500">{!validAddress && inputText?.length > 150 ? 'Address is too long or too short!' : ''}</span>
+                                <span className="font-bold text-red-500">{!isRoutingNumberValid && inputText?.length > 150 ? 'Routing number is required!' : ''}</span>
                                 <div className="flex justify-center gap-4 items-center">
-                                    {isDateValid && validFirstName && validLastName && isRoutingNumberValid && inputText?.length>150 && (
+                                    {isDateValid && validFirstName && validLastName && isRoutingNumberValid && validAddress && inputText?.length > 150 && (
                                         <button
                                             disabled={warnings.dob.length > 0 ? true : false}
                                             type="submit"
