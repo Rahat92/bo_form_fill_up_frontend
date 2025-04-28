@@ -22,6 +22,7 @@ const MyEditor = () => {
     const [validLastName, setValidLastName] = useState(true)
     const [validAddress, setValidAddress] = useState(true)
     const [isRoutingNumberValid, setIsRoutingNumberValid] = useState(true)
+    const [isBankAccountNumberValid, setIsBankAccountNumberValid] = useState(true)
     const [inputText, setInputText] = useState("");
     const [windowWidth, setWindowWidth] = useState();
     const [isSubmitButtonClicked, setIsSubmitButtonClicked] = useState();
@@ -90,6 +91,11 @@ const MyEditor = () => {
                 setIsRoutingNumberValid(true)
             } else {
                 setIsRoutingNumberValid(false)
+            }
+            if (inputObj['Bank Account Number']?.length === 13 || inputObj['ব্যাংক একাউন্ট নাম্বার']?.length === 13) {
+                setIsBankAccountNumberValid(true)
+            } else {
+                setIsBankAccountNumberValid(false)
             }
         } else {
             setIsDateValid(true)
@@ -178,6 +184,7 @@ const MyEditor = () => {
     useEffect(() => {
         const generateFolder = async () => {
             if (Object.keys(inputObj).length > 10 && clientId.length > 3) {
+                console.log(inputObj)
                 const croppedSignature = handleGetCroppedImages();
                 const resp = await fetch(croppedSignature);
                 const blob = await resp.blob();
@@ -292,6 +299,10 @@ const MyEditor = () => {
                 formData.append(
                     'clientBankName',
                     inputObj["আপনার ব্যাংকের নাম"] || inputObj["Name of your Bank"]
+                );
+                formData.append(
+                    'clientBankBranchName',
+                    inputObj["শাখার নাম"] || inputObj["Branch Name"]
                 );
                 formData.append(
                     'clientBankDepositeScreenShot',
@@ -678,6 +689,7 @@ const MyEditor = () => {
                                 <span className="font-bold text-red-500">{!validLastName && inputText?.length > 150 ? 'Last name is required!' : ''}</span>
                                 <span className="font-bold text-red-500">{!validAddress && inputText?.length > 150 ? 'Address is too long or too short!' : ''}</span>
                                 <span className="font-bold text-red-500">{!isRoutingNumberValid && inputText?.length > 150 ? 'Routing number is required!' : ''}</span>
+                                <span className="font-bold text-red-500">{!isBankAccountNumberValid && inputText?.length > 150 ? 'Invalid bank account number!' : ''}</span>
                                 <div className="flex justify-center gap-4 items-center">
                                     {isDateValid && validFirstName && validLastName && isRoutingNumberValid && validAddress && inputText?.length > 150 && (
                                         <button
