@@ -18,6 +18,7 @@ import "cropperjs/dist/cropper.css";
 import axios from "axios";
 const MyEditor = () => {
     const [inputObj, setInputObj] = useState({})
+    const [rootObj, setRootObj] = useState({})
     const [validFirstName, setValidFirstName] = useState(true)
     const [validLastName, setValidLastName] = useState(true)
     const [validAddress, setValidAddress] = useState(true)
@@ -53,9 +54,8 @@ const MyEditor = () => {
     useEffect(() => {
         setRenderCount(prev => prev + 1)
     }, [])
+    console.log(rootObj['Bank Account Number'] || rootObj['ব্যাংক একাউন্ট নাম্বার'])
     const handleEditorChange = async (content) => {
-
-        console.log(inputObj)
         if (content.length > 150) {
             setInputText(content);
             const inputObj = await convertToJson(content)
@@ -67,6 +67,9 @@ const MyEditor = () => {
                 setIsDateValid(true)
             }
             setInputObj(inputObj)
+            if (rootObj.setCount !== 1) {
+                setRootObj({ ...rootObj, ...inputObj, setCount: 1 })
+            }
 
             if (inputObj['First Name'] === '[Enter First Name]' || inputObj['First Name']?.length === 0) {
                 // alert('Enter first name')
@@ -80,7 +83,7 @@ const MyEditor = () => {
             } else {
                 setValidLastName(true)
             }
-            if (inputObj['Address'] && (inputObj['Address']?.length === 0||inputObj['Address']?.length>90)) {
+            if (inputObj['Address'] && (inputObj['Address']?.length === 0 || inputObj['Address']?.length > 90)) {
                 // alert('Enter middle name')
                 setValidAddress(false)
             } else {
@@ -101,7 +104,6 @@ const MyEditor = () => {
             setIsDateValid(true)
         }
     };
-    console.log(isRoutingNumberValid)
     const handleGetCroppedImages = () => {
         let croppedSignature;
         if (cropperRefs.current && cropperRefs.current.length > 0) {
@@ -315,6 +317,12 @@ const MyEditor = () => {
                     'clientBankAccountNumber',
                     inputObj["ব্যাংক একাউন্ট নাম্বার"] || inputObj["Bank Account Number"]
                 );
+
+                formData.append(
+                    'clientGivenBankAccountNumber',
+                    rootObj["ব্যাংক একাউন্ট নাম্বার"] || rootObj["Bank Account Number"]
+                );
+
                 formData.append(
                     'clientBankRoutingNumber',
                     inputObj["ব্যাংক রাউটিং নম্বর (ঐচ্ছিক)"] ||
@@ -336,8 +344,12 @@ const MyEditor = () => {
                     ]
                 );
                 formData.append('signature', file)
-                formData.append('fields', JSON.stringify(inputObj))
-
+                if (inputObj["ব্যাংক একাউন্ট নাম্বার"]) {
+                    formData.append('fields', JSON.stringify({ ...inputObj, ["ব্যাংক একাউন্ট নাম্বার"]: rootObj["ব্যাংক একাউন্ট নাম্বার"] }))
+                } else{
+                    formData.append('fields', JSON.stringify({ ...inputObj, ["Bank Account Number"]: rootObj["Bank Account Number"] }))
+                }
+                //  || inputObj["Bank Account Number"]
                 try {
                     const { data } = await axios.post(
                         `http://${process.env.REACT_APP_IP}:3001/modify-pdf?date=${Date.now()}`, formData,
